@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NetMind · Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0c14;--surface:#111420;--card:#161b2e;--card2:#1a2035;
+  --blue:#1a6fdb;--teal:#00e8c8;--green:#27ae60;--amber:#f39c12;
+  --red:#e03e3e;--purple:#8e44ad;--gold:#f1c40f;
+  --gray:#8892a4;--border:rgba(255,255,255,.07);--text:#e8ecf4;--dim:#8892a4;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* ── TOP BAR ── */
+#topbar{
+  background:#0d1022;border-bottom:1px solid var(--border);
+  height:54px;display:flex;align-items:center;padding:0 24px;gap:16px;
+  position:sticky;top:0;z-index:100;
+}
+.brand{font-family:'Syne',sans-serif;font-size:18px;font-weight:900;color:#fff;letter-spacing:-0.5px;}
+.brand b{color:var(--teal);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.stat-pill{
+  display:flex;align-items:center;gap:6px;padding:5px 12px;
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  font-size:12px;font-weight:600;
+}
+.stat-pill .icon{font-size:14px;}
+.streak-pill{color:var(--amber);}
+.xp-pill{color:var(--teal);}
+.level-pill{color:var(--purple);}
+
+/* ── LAYOUT ── */
+#page{max-width:1280px;margin:0 auto;padding:28px 24px 60px;}
+
+/* ── HERO ── */
+.hero{
+  display:grid;grid-template-columns:1fr auto;gap:24px;align-items:center;
+  background:linear-gradient(135deg,#111c3a 0%,#0d1022 100%);
+  border:1px solid var(--border);border-radius:16px;
+  padding:28px 32px;margin-bottom:28px;position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;
+  background:radial-gradient(circle,rgba(26,111,219,.15),transparent 70%);pointer-events:none;
+}
+.hero-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:900;margin-bottom:6px;}
+.hero-title b{color:var(--teal);}
+.hero-sub{color:var(--dim);font-size:14px;margin-bottom:20px;line-height:1.5;}
+.hero-ctas{display:flex;gap:10px;flex-wrap:wrap;}
+.cta-btn{
+  padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .2s;
+  text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+}
+.cta-primary{background:var(--blue);color:#fff;}
+.cta-primary:hover{background:#1d7aef;transform:translateY(-1px);}
+.cta-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+.cta-secondary:hover{border-color:rgba(255,255,255,.2);}
+.cta-green{background:var(--green);color:#fff;}
+.cta-green:hover{background:#2ecc71;}
+
+/* Ring */
+.hero-ring{position:relative;width:120px;height:120px;flex-shrink:0;}
+.ring-svg{width:120px;height:120px;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.05);stroke-width:8;}
+.ring-fill{fill:none;stroke:var(--teal);stroke-width:8;stroke-linecap:round;
+  stroke-dasharray:283;transition:stroke-dashoffset 1s ease;}
+.ring-text{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;
+}
+.ring-pct{font-family:'Syne',sans-serif;font-size:22px;font-weight:900;color:var(--teal);}
+.ring-label{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;}
+
+/* ── SECTION HEADERS ── */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;
+}
+.section-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;
+  text-transform:uppercase;letter-spacing:1.5px;color:var(--dim);}
+.section-action{font-size:12px;color:var(--blue);cursor:pointer;}
+.section-action:hover{color:var(--teal);}
+
+/* ── MODULE CARDS ── */
+.modules-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}
+@media(max-width:900px){.modules-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:600px){.modules-grid{grid-template-columns:repeat(2,1fr);}}
+.module-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;cursor:pointer;transition:all .2s;text-decoration:none;
+  display:flex;flex-direction:column;gap:8px;
+}
+.module-card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-2px);}
+.mod-icon{font-size:24px;}
+.mod-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:800;}
+.mod-desc{font-size:11px;color:var(--dim);line-height:1.4;}
+.mod-stat{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--teal);}
+
+/* ── CATEGORY FILTER ── */
+.cat-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.cat-btn{
+  padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;
+  cursor:pointer;border:1px solid var(--border);background:var(--card);
+  color:var(--dim);transition:all .15s;
+}
+.cat-btn.active,.cat-btn:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+/* ── EXPERTISE GRID ── */
+.exp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:10px;margin-bottom:28px;}
+.exp-tile{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
+}
+.exp-tile:hover{transform:translateY(-2px);border-color:rgba(255,255,255,.15);}
+.exp-tile::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  border-radius:0 0 12px 12px;
+}
+.exp-tile.unseen::after{background:var(--border);}
+.exp-tile.intro::after{background:var(--blue);}
+.exp-tile.learning::after{background:var(--blue);}
+.exp-tile.practicing::after{background:var(--amber);}
+.exp-tile.proficient::after{background:var(--green);}
+.exp-tile.expert::after{background:linear-gradient(90deg,var(--teal),var(--gold));}
+
+.exp-tile-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.exp-num{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--dim);font-weight:700;}
+.exp-badge{
+  font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;
+  padding:2px 7px;border-radius:10px;
+}
+.badge-unseen{background:rgba(136,146,164,.1);color:var(--dim);}
+.badge-intro{background:rgba(26,111,219,.15);color:var(--blue);}
+.badge-learning{background:rgba(26,111,219,.2);color:var(--blue);}
+.badge-practicing{background:rgba(243,156,18,.15);color:var(--amber);}
+.badge-proficient{background:rgba(39,174,96,.15);color:var(--green);}
+.badge-expert{background:linear-gradient(135deg,rgba(0,232,200,.15),rgba(241,196,15,.15));color:var(--teal);}
+
+.exp-title{font-size:12px;font-weight:600;margin-bottom:10px;line-height:1.3;}
+.exp-bars{display:flex;flex-direction:column;gap:4px;}
+.exp-bar-row{display:flex;align-items:center;gap:6px;}
+.exp-bar-lbl{font-size:8px;color:var(--dim);width:20px;flex-shrink:0;font-family:'JetBrains Mono',monospace;}
+.exp-bar-track{flex:1;height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;}
+.exp-bar-fill{height:100%;border-radius:2px;transition:width .6s ease;}
+.fill-view{background:var(--blue);}
+.fill-quiz{background:var(--amber);}
+.fill-lab{background:var(--green);}
+.fill-scen{background:var(--purple);}
+.exp-score{font-size:16px;font-weight:900;font-family:'Syne',sans-serif;position:absolute;top:12px;right:12px;opacity:.15;}
+
+/* ── RECOMMENDED ── */
+.rec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:28px;}
+.rec-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:14px 16px;display:flex;gap:12px;align-items:flex-start;
+  cursor:pointer;transition:all .2s;
+}
+.rec-card:hover{border-color:rgba(255,255,255,.15);}
+.rec-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0;}
+.rec-body{flex:1;min-width:0;}
+.rec-action{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px;}
+.rec-topic{font-size:13px;font-weight:600;margin-bottom:3px;}
+.rec-reason{font-size:11px;color:var(--dim);}
+.rec-xp{font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--teal);margin-top:4px;}
+
+/* ── ACTIVITY ── */
+.activity-list{display:flex;flex-direction:column;gap:6px;margin-bottom:28px;}
+.act-row{
+  display:flex;align-items:center;gap:12px;padding:10px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
+}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.act-text{flex:1;font-size:12px;}
+.act-xp{font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--teal);}
+.act-time{font-size:10px;color:var(--dim);}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;z-index:200;
+  opacity:0;pointer-events:none;transition:opacity .2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;
+  width:min(680px,95vw);max-height:85vh;overflow-y:auto;
+  transform:translateY(20px);transition:transform .2s;
+}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal-header{
+  padding:24px 24px 16px;border-bottom:1px solid var(--border);
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+  position:sticky;top:0;background:var(--surface);z-index:1;
+}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;}
+.modal-close{
+  width:30px;height:30px;border-radius:50%;background:var(--card);
+  border:1px solid var(--border);color:var(--dim);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.modal-body{padding:20px 24px 24px;}
+.modal-section{margin-bottom:20px;}
+.modal-section-title{font-size:11px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;color:var(--dim);margin-bottom:10px;}
+.score-display{
+  display:flex;align-items:center;gap:16px;padding:16px;
+  background:var(--card);border-radius:10px;margin-bottom:16px;
+}
+.score-big{font-family:'Syne',sans-serif;font-size:40px;font-weight:900;color:var(--teal);}
+.score-meta{flex:1;}
+.score-level{font-size:14px;font-weight:700;margin-bottom:4px;}
+.score-next{font-size:11px;color:var(--dim);}
+.modal-bars{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.modal-bar-row{display:flex;align-items:center;gap:10px;}
+.modal-bar-lbl{font-size:11px;color:var(--dim);width:80px;flex-shrink:0;}
+.modal-bar-track{flex:1;height:8px;background:rgba(255,255,255,.05);border-radius:4px;overflow:hidden;}
+.modal-bar-fill{height:100%;border-radius:4px;transition:width .6s ease;}
+.modal-bar-val{font-size:11px;font-family:'JetBrains Mono',monospace;width:40px;text-align:right;}
+.modal-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.modal-action-btn{
+  flex:1;min-width:120px;padding:10px 16px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card2);color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;
+  font-size:12px;font-weight:600;transition:all .2s;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+}
+.modal-action-btn:hover{border-color:rgba(255,255,255,.2);background:var(--card);}
+.modal-action-btn .btn-icon{font-size:20px;}
+.modal-action-btn .btn-xp{font-size:10px;color:var(--teal);font-family:'JetBrains Mono',monospace;}
+
+/* ── RESET BTN ── */
+.reset-btn{
+  font-size:11px;color:var(--dim);cursor:pointer;padding:4px 8px;
+  border-radius:4px;border:1px solid var(--border);background:none;
+  font-family:'DM Sans',sans-serif;
+}
+.reset-btn:hover{color:var(--red);}
+
+/* ── MOBILE ── */
+@media(max-width:700px){
+  .hero{grid-template-columns:1fr;}.hero-ring{display:none;}
+  .modules-grid{grid-template-columns:repeat(2,1fr);}
+  #page{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">Net<b>Mind</b></div>
+  <div class="topbar-right">
+    <div class="stat-pill streak-pill"><span class="icon">🔥</span><span id="streak-val">0</span> day streak</div>
+    <div class="stat-pill xp-pill"><span class="icon">⚡</span><span id="xp-val">0</span> XP</div>
+    <div class="stat-pill level-pill"><span class="icon">🎓</span><span id="mastered-val">0</span>/26 mastered</div>
+    <button class="reset-btn" onclick="resetProgress()">Reset</button>
+  </div>
+</div>
+
+<div id="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="hero-title">Your <b>CCNA Journey</b></div>
+      <div class="hero-sub">Track expertise across all 26 topics. Complete diagrams, quizzes, labs and scenarios to unlock Expert status on each.</div>
+      <div id="setup-banner" style="background:rgba(0,232,200,.08);border:1px solid rgba(0,232,200,.2);
+        border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px;color:#8892a4;line-height:1.6;">
+        <b style="color:#00e8c8">📁 First time?</b> Download all 6 NetMind files into one folder, then open 
+        <code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;color:#00e8c8;font-family:'JetBrains Mono',monospace">netmind-hub.html</code> locally for full navigation between modules.
+        <span style="float:right;cursor:pointer;color:#00e8c8" onclick="this.parentElement.style.display='none'">✕</span>
+      </div>
+      <div class="hero-ctas">
+        <button class="cta-btn cta-primary" onclick="goTo('topologies')">📊 Animated Diagrams</button>
+        <button class="cta-btn cta-green" onclick="goTo('scenarios')">⚡ Scenarios</button>
+        <button class="cta-btn cta-secondary" onclick="goTo('labs')">🖥 Labs</button>
+        <button class="cta-btn cta-secondary" onclick="goTo('story')">📖 Story</button>
+        <button class="cta-btn cta-secondary" onclick="goTo('tools')">🔧 Tools</button>
+      </div>
+    </div>
+    <div class="hero-ring">
+      <svg class="ring-svg" viewBox="0 0 100 100">
+        <circle class="ring-bg" cx="50" cy="50" r="45"/>
+        <circle class="ring-fill" id="ring-circle" cx="50" cy="50" r="45" stroke-dashoffset="283"/>
+      </svg>
+      <div class="ring-text">
+        <div class="ring-pct" id="ring-pct">0%</div>
+        <div class="ring-label">Overall</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODULES -->
+  <div class="section-header">
+    <div class="section-title">Modules</div>
+  </div>
+  <div class="modules-grid">
+    <div class="module-card" onclick="goTo('topologies')">
+      <div class="mod-icon">📊</div>
+      <div class="mod-name">Topologies</div>
+      <div class="mod-desc">26 animated Cisco-style diagrams with step-by-step packet flows</div>
+      <div class="mod-stat" id="mod-topo-stat">56 steps · 158 key cards</div>
+    </div>
+    <div class="module-card" onclick="goTo('scenarios')">
+      <div class="mod-icon">⚡</div>
+      <div class="mod-name">Scenarios</div>
+      <div class="mod-desc">Real-world network faults — diagnose, fix and verify in IOS simulator</div>
+      <div class="mod-stat" id="mod-scen-stat">26 scenarios · 4 tasks each</div>
+    </div>
+    <div class="module-card" onclick="goTo('labs')">
+      <div class="mod-icon">🖥</div>
+      <div class="mod-name">Labs</div>
+      <div class="mod-desc">24 guided IOS configuration labs with terminal simulator</div>
+      <div class="mod-stat">24 labs · step-by-step</div>
+    </div>
+    <div class="module-card" onclick="goTo('story')">
+      <div class="mod-icon">📖</div>
+      <div class="mod-name">Course</div>
+      <div class="mod-desc">Full narrative course — concepts explained with context and examples</div>
+      <div class="mod-stat">26 topics · full depth</div>
+    </div>
+    <div class="module-card" onclick="goTo('tools')">
+      <div class="mod-icon">🔧</div>
+      <div class="mod-name">Tools</div>
+      <div class="mod-desc">Subnet drills, mock exam, troubleshooting simulator, dependency map</div>
+      <div class="mod-stat">6 tools · 167 exam questions</div>
+    </div>
+  </div>
+
+  <!-- EXPERTISE -->
+  <div class="section-header">
+    <div class="section-title">Expertise by Topic</div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <div class="cat-filter" id="cat-filter"></div>
+    </div>
+  </div>
+  <div class="exp-grid" id="exp-grid"></div>
+
+  <!-- RECOMMENDED -->
+  <div class="section-header">
+    <div class="section-title">Recommended Next</div>
+  </div>
+  <div class="rec-grid" id="rec-grid"></div>
+
+  <!-- ACTIVITY -->
+  <div class="section-header">
+    <div class="section-title">Recent Activity</div>
+    <div class="section-action" onclick="clearActivity()">Clear</div>
+  </div>
+  <div class="activity-list" id="activity-list"></div>
+
+</div>
+
+<!-- DOWNLOAD TOAST -->
+<div id="download-toast" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:#1a2035;border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:16px 20px;
+  z-index:300;align-items:flex-start;gap:14px;max-width:480px;box-shadow:0 8px 32px rgba(0,0,0,.4);">
+  <div style="font-size:28px;flex-shrink:0">💾</div>
+  <div>
+    <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:14px;margin-bottom:6px;color:#fff">
+      To open modules, save all files locally
+    </div>
+    <div style="font-size:12px;color:#8892a4;line-height:1.6;margin-bottom:8px">
+      Download all 6 NetMind files and place them in the same folder.<br>
+      Then open <code style="background:rgba(255,255,255,.1);padding:1px 5px;border-radius:3px;color:#00e8c8">netmind-hub.html</code> from your local files.
+    </div>
+    <div style="font-size:11px;color:#00e8c8;font-family:'JetBrains Mono',monospace">
+      Opening: <span class="dt-file"></span>
+    </div>
+  </div>
+  <button onclick="this.parentElement.style.display='none'" 
+    style="position:absolute;top:10px;right:12px;background:none;border:none;color:#8892a4;
+    cursor:pointer;font-size:16px;padding:0;">✕</button>
+</div>
+
+<!-- TOPIC MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <div style="font-size:10px;color:var(--dim);margin-bottom:4px;font-family:'JetBrains Mono',monospace;" id="modal-num"></div>
+        <div class="modal-title" id="modal-title"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="score-display">
+          <div class="score-big" id="modal-score">0</div>
+          <div class="score-meta">
+            <div class="score-level" id="modal-level">Not started</div>
+            <div class="score-next" id="modal-next"></div>
+          </div>
+        </div>
+        <div class="modal-bars">
+          <div class="modal-bar-row">
+            <div class="modal-bar-lbl">📊 Diagrams</div>
+            <div class="modal-bar-track"><div class="modal-bar-fill fill-view" id="mb-view" style="width:0%"></div></div>
+            <div class="modal-bar-val" id="mv-val">0/5</div>
+          </div>
+          <div class="modal-bar-row">
+            <div class="modal-bar-lbl">🧠 Quiz</div>
+            <div class="modal-bar-track"><div class="modal-bar-fill fill-quiz" id="mb-quiz" style="width:0%"></div></div>
+            <div class="modal-bar-val" id="mq-val">0/30</div>
+          </div>
+          <div class="modal-bar-row">
+            <div class="modal-bar-lbl">🖥 Labs</div>
+            <div class="modal-bar-track"><div class="modal-bar-fill fill-lab" id="mb-lab" style="width:0%"></div></div>
+            <div class="modal-bar-val" id="ml-val">0/3</div>
+          </div>
+          <div class="modal-bar-row">
+            <div class="modal-bar-lbl">⚡ Scenarios</div>
+            <div class="modal-bar-track"><div class="modal-bar-fill fill-scen" id="mb-scen" style="width:0%"></div></div>
+            <div class="modal-bar-val" id="ms-val">0/1</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-section">
+        <div class="modal-section-title">Go practice this topic</div>
+        <div class="modal-actions" id="modal-actions"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOPICS = [
+  {id:'01',title:'Spanning Tree Protocol',cat:'Switching'},
+  {id:'02',title:'VLANs',cat:'Switching'},
+  {id:'03',title:'802.1Q Trunking',cat:'Switching'},
+  {id:'04',title:'EtherChannel',cat:'Switching'},
+  {id:'05',title:'STP Root Election',cat:'Switching'},
+  {id:'06',title:'Port Security',cat:'Switching'},
+  {id:'07',title:'DHCP Snooping & DAI',cat:'Security'},
+  {id:'08',title:'Static Routing',cat:'Routing'},
+  {id:'09',title:'OSPF',cat:'Routing'},
+  {id:'10',title:'Inter-VLAN Routing',cat:'Routing'},
+  {id:'11',title:'IPv4 Subnetting',cat:'Addressing'},
+  {id:'12',title:'HSRP',cat:'Routing'},
+  {id:'13',title:'DHCP',cat:'Services'},
+  {id:'14',title:'NAT / PAT',cat:'Services'},
+  {id:'15',title:'ACL',cat:'Security'},
+  {id:'16',title:'DNS',cat:'Services'},
+  {id:'17',title:'NTP',cat:'Services'},
+  {id:'18',title:'TCP / Transport',cat:'Protocols'},
+  {id:'19',title:'SSH vs Telnet',cat:'Security'},
+  {id:'20',title:'AAA / RADIUS / TACACS+',cat:'Security'},
+  {id:'21',title:'Wireless Association',cat:'Wireless'},
+  {id:'22',title:'WLC & CAPWAP',cat:'Wireless'},
+  {id:'23',title:'VPN & IPsec',cat:'Security'},
+  {id:'24',title:'SDN & Automation',cat:'Automation'},
+  {id:'25',title:'Ansible & Data Formats',cat:'Automation'},
+  {id:'26',title:'IPv6 NDP & SLAAC',cat:'Addressing'},
+];
+
+const CATS = ['All',...[...new Set(TOPICS.map(t=>t.cat))]];
+
+const LEVELS = [
+  {key:'unseen',   label:'Not started', min:0,  max:0},
+  {key:'intro',    label:'Intro',       min:1,  max:19},
+  {key:'learning', label:'Learning',    min:20, max:49},
+  {key:'practicing',label:'Practicing', min:50, max:74},
+  {key:'proficient',label:'Proficient', min:75, max:89},
+  {key:'expert',   label:'Expert',      min:90, max:100},
+];
+
+const MODULE_FILES = {
+  topologies:'netmind-topologies.html',
+  scenarios: 'netmind-scenarios.html',
+  labs:      'netmind-labs.html',
+  story:     'netmind-story.html',
+  tools:     'netmind-tools.html',
+};
+
+const SK = 'netmind_v2';
+let STATE, activeCat = 'All', activeModal = null;
+
+// ── STATE ─────────────────────────────────────────────────────────
+function defaultState(){
+  const exp = {};
+  TOPICS.forEach(t => {
+    exp[t.id] = {views:0,quizScore:0,labsDone:0,scenariosDone:0,score:0};
+  });
+  return {
+    expertise: exp,
+    totalXP: 0,
+    streak: 0,
+    lastVisit: null,
+    activity: [],
+  };
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(SK);
+    if(!raw) return defaultState();
+    const s = JSON.parse(raw);
+    // Ensure all topics exist
+    TOPICS.forEach(t => {
+      if(!s.expertise[t.id])
+        s.expertise[t.id] = {views:0,quizScore:0,labsDone:0,scenariosDone:0,score:0};
+    });
+    return s;
+  } catch(e){ return defaultState(); }
+}
+
+function saveState(){
+  localStorage.setItem(SK, JSON.stringify(STATE));
+}
+
+function calcScore(e){
+  const v = Math.min(e.views*4, 20);
+  const q = Math.min(e.quizScore, 30);
+  const l = Math.min(e.labsDone*10, 30);
+  const s = Math.min(e.scenariosDone*20, 20);
+  return v + q + l + s;
+}
+
+function getLevel(score){
+  if(score===0) return 'unseen';
+  if(score<20)  return 'intro';
+  if(score<50)  return 'learning';
+  if(score<75)  return 'practicing';
+  if(score<90)  return 'proficient';
+  return 'expert';
+}
+
+function getLevelLabel(score){ return LEVELS.find(l=>getLevel(score)===l.key)?.label || 'Expert'; }
+
+function nextLevelInfo(score){
+  if(score>=90) return {label:'Expert — maximum level',xp:0};
+  const next = LEVELS.find(l => score < l.min);
+  return next ? {label:`${next.xp} more XP to ${next.label}`, xp: next.min - score} : {label:'',xp:0};
+}
+
+// ── CROSS-MODULE UPDATES ──────────────────────────────────────────
+window.netmindUpdate = function(topicId, type, xpGain, actLabel){
+  const e = STATE.expertise[topicId];
+  if(!e) return;
+  if(type==='view')      e.views = Math.min(e.views+1, 5);
+  if(type==='quiz')      e.quizScore = Math.min(e.quizScore + (xpGain||10), 30);
+  if(type==='lab')       e.labsDone = Math.min(e.labsDone+1, 3);
+  if(type==='scenario')  e.scenariosDone = Math.min(e.scenariosDone+1, 1);
+  e.score = calcScore(e);
+  STATE.totalXP += (xpGain || 5);
+
+  // Streak
+  const today = new Date().toDateString();
+  if(STATE.lastVisit !== today){
+    const yesterday = new Date(Date.now()-86400000).toDateString();
+    STATE.streak = STATE.lastVisit === yesterday ? STATE.streak+1 : 1;
+    STATE.lastVisit = today;
+  }
+
+  // Activity log
+  const topic = TOPICS.find(t=>t.id===topicId);
+  STATE.activity.unshift({
+    topicId, type,
+    label: actLabel || `${type} — ${topic?.title}`,
+    xp: xpGain || 5,
+    time: Date.now(),
+  });
+  STATE.activity = STATE.activity.slice(0,50);
+
+  saveState();
+  renderAll();
+};
+
+// ── RENDER ────────────────────────────────────────────────────────
+function renderAll(){
+  renderTopbar();
+  renderHeroRing();
+  renderExpGrid();
+  renderRecommended();
+  renderActivity();
+}
+
+function renderTopbar(){
+  document.getElementById('streak-val').textContent = STATE.streak;
+  document.getElementById('xp-val').textContent = STATE.totalXP.toLocaleString();
+  const mastered = TOPICS.filter(t => getLevel(STATE.expertise[t.id].score) === 'expert').length;
+  document.getElementById('mastered-val').textContent = mastered;
+}
+
+function renderHeroRing(){
+  const total = TOPICS.reduce((sum,t)=> sum + STATE.expertise[t.id].score, 0);
+  const pct = Math.round(total / (TOPICS.length * 100) * 100);
+  const circumference = 283;
+  const offset = circumference - (pct/100)*circumference;
+  document.getElementById('ring-circle').style.strokeDashoffset = offset;
+  document.getElementById('ring-pct').textContent = pct+'%';
+}
+
+function buildCatFilter(){
+  const el = document.getElementById('cat-filter');
+  el.innerHTML = CATS.map(c =>
+    `<button class="cat-btn${c===activeCat?' active':''}" onclick="setCat('${c}')">${c}</button>`
+  ).join('');
+}
+
+function setCat(c){
+  activeCat = c;
+  buildCatFilter();
+  renderExpGrid();
+}
+
+function renderExpGrid(){
+  const grid = document.getElementById('exp-grid');
+  const filtered = activeCat==='All' ? TOPICS : TOPICS.filter(t=>t.cat===activeCat);
+  grid.innerHTML = filtered.map(t => {
+    const e = STATE.expertise[t.id];
+    const sc = e.score;
+    const lv = getLevel(sc);
+    const ll = getLevelLabel(sc);
+    const vP = Math.min(e.views/5*100,100);
+    const qP = Math.min(e.quizScore/30*100,100);
+    const lP = Math.min(e.labsDone/3*100,100);
+    const sP = Math.min(e.scenariosDone/1*100,100);
+    return `<div class="exp-tile ${lv}" onclick="openModal('${t.id}')">
+      <div class="exp-score">${sc}</div>
+      <div class="exp-tile-top">
+        <div class="exp-num">TOPIC ${t.id}</div>
+        <div class="exp-badge badge-${lv}">${ll}</div>
+      </div>
+      <div class="exp-title">${t.title}</div>
+      <div class="exp-bars">
+        <div class="exp-bar-row"><div class="exp-bar-lbl">View</div><div class="exp-bar-track"><div class="exp-bar-fill fill-view" style="width:${vP}%"></div></div></div>
+        <div class="exp-bar-row"><div class="exp-bar-lbl">Quiz</div><div class="exp-bar-track"><div class="exp-bar-fill fill-quiz" style="width:${qP}%"></div></div></div>
+        <div class="exp-bar-row"><div class="exp-bar-lbl">Lab</div><div class="exp-bar-track"><div class="exp-bar-fill fill-lab" style="width:${lP}%"></div></div></div>
+        <div class="exp-bar-row"><div class="exp-bar-lbl">Scen</div><div class="exp-bar-track"><div class="exp-bar-fill fill-scen" style="width:${sP}%"></div></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderRecommended(){
+  const grid = document.getElementById('rec-grid');
+  // Sort by score asc, pick weakest areas
+  const sorted = [...TOPICS].sort((a,b)=>STATE.expertise[a.id].score - STATE.expertise[b.id].score);
+  const recs = [];
+
+  // Weakest topic that has views=0 → view diagrams
+  const unviewed = sorted.find(t=>STATE.expertise[t.id].views===0);
+  if(unviewed) recs.push({
+    topic:unviewed, action:'Study Diagrams', icon:'📊',
+    color:'var(--blue)', reason:'Not yet viewed — start here',
+    xp:'+20 XP', module:'topologies'
+  });
+
+  // Weakest topic with views>0 but no scenario → do scenario
+  const noScen = sorted.find(t=>STATE.expertise[t.id].views>0 && STATE.expertise[t.id].scenariosDone===0);
+  if(noScen) recs.push({
+    topic:noScen, action:'Run Scenario', icon:'⚡',
+    color:'var(--amber)', reason:'Viewed but not scenario-tested',
+    xp:'+20 XP', module:'scenarios'
+  });
+
+  // Weakest quiz score
+  const weakQuiz = sorted.find(t=>STATE.expertise[t.id].quizScore<20);
+  if(weakQuiz) recs.push({
+    topic:weakQuiz, action:'Take Quiz', icon:'🧠',
+    color:'var(--purple)', reason:'Quiz score needs improvement',
+    xp:'+10 XP', module:'tools'
+  });
+
+  // No lab done
+  const noLab = sorted.find(t=>STATE.expertise[t.id].labsDone===0);
+  if(noLab) recs.push({
+    topic:noLab, action:'Complete Lab', icon:'🖥',
+    color:'var(--green)', reason:'No lab completed for this topic',
+    xp:'+10 XP', module:'labs'
+  });
+
+  // Fill with lowest scoring
+  while(recs.length < 4 && sorted.length > recs.length){
+    const t = sorted[recs.length];
+    if(!recs.find(r=>r.topic.id===t.id)){
+      recs.push({
+        topic:t, action:'Review', icon:'🔄',
+        color:'var(--teal)', reason:`Score: ${STATE.expertise[t.id].score}/100`,
+        xp:'+5 XP', module:'topologies'
+      });
+    }
+  }
+
+  grid.innerHTML = recs.slice(0,4).map(r=>`
+    <div class="rec-card" onclick="goTo('${r.module}','${r.topic.id}')">
+      <div class="rec-icon" style="background:${r.color}22">${r.icon}</div>
+      <div class="rec-body">
+        <div class="rec-action" style="color:${r.color}">${r.action}</div>
+        <div class="rec-topic">Topic ${r.topic.id}: ${r.topic.title}</div>
+        <div class="rec-reason">${r.reason}</div>
+        <div class="rec-xp">${r.xp}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderActivity(){
+  const list = document.getElementById('activity-list');
+  if(!STATE.activity.length){
+    list.innerHTML = '<div style="color:var(--dim);font-size:13px;padding:12px 0">No activity yet — start studying!</div>';
+    return;
+  }
+  const typeColors = {view:'var(--blue)',quiz:'var(--purple)',lab:'var(--green)',scenario:'var(--amber)'};
+  const typeIcons  = {view:'📊',quiz:'🧠',lab:'🖥',scenario:'⚡'};
+  list.innerHTML = STATE.activity.slice(0,8).map(a=>{
+    const ago = Math.round((Date.now()-a.time)/60000);
+    const agoStr = ago<1?'just now':ago<60?ago+'m ago':Math.round(ago/60)+'h ago';
+    return `<div class="act-row">
+      <div class="act-dot" style="background:${typeColors[a.type]||'var(--gray)'}"></div>
+      <div class="act-text">${typeIcons[a.type]||'·'} ${a.label}</div>
+      <div class="act-xp">+${a.xp} XP</div>
+      <div class="act-time">${agoStr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────
+function openModal(topicId){
+  const topic = TOPICS.find(t=>t.id===topicId);
+  const e = STATE.expertise[topicId];
+  const sc = e.score;
+  const lv = getLevel(sc);
+  const ll = getLevelLabel(sc);
+
+  document.getElementById('modal-num').textContent = `TOPIC ${topicId} · ${topic.cat.toUpperCase()}`;
+  document.getElementById('modal-title').textContent = topic.title;
+  document.getElementById('modal-score').textContent = sc;
+  document.getElementById('modal-level').textContent = ll;
+
+  const toNext = sc>=90 ? 'Expert — maximum achieved! 🏆' :
+    lv==='unseen' ? 'Score 1+ to reach Intro' :
+    lv==='intro' ? `Score ${20-sc} more to reach Learning` :
+    lv==='learning' ? `Score ${50-sc} more to reach Practicing` :
+    lv==='practicing' ? `Score ${75-sc} more to reach Proficient` :
+    `Score ${90-sc} more to reach Expert`;
+  document.getElementById('modal-next').textContent = toNext;
+
+  // Bars
+  const vP = Math.min(e.views/5*100,100);
+  const qP = Math.min(e.quizScore/30*100,100);
+  const lP = Math.min(e.labsDone/3*100,100);
+  const sP = Math.min(e.scenariosDone/1*100,100);
+  document.getElementById('mb-view').style.width = vP+'%';
+  document.getElementById('mb-quiz').style.width = qP+'%';
+  document.getElementById('mb-lab').style.width  = lP+'%';
+  document.getElementById('mb-scen').style.width = sP+'%';
+  document.getElementById('mv-val').textContent = e.views+'/5';
+  document.getElementById('mq-val').textContent = e.quizScore+'/30';
+  document.getElementById('ml-val').textContent = e.labsDone+'/3';
+  document.getElementById('ms-val').textContent = e.scenariosDone+'/1';
+
+  // Action buttons
+  document.getElementById('modal-actions').innerHTML = `
+    <button class="modal-action-btn" onclick="goTo('topologies','${topicId}');closeModal()">
+      <div class="btn-icon">📊</div><div>Animated Diagram</div>
+      <div class="btn-xp">+4 XP per view</div>
+    </button>
+    <button class="modal-action-btn" onclick="goTo('scenarios','${topicId}');closeModal()">
+      <div class="btn-icon">⚡</div><div>Run Scenario</div>
+      <div class="btn-xp">+20 XP</div>
+    </button>
+    <button class="modal-action-btn" onclick="goTo('labs','${topicId}');closeModal()">
+      <div class="btn-icon">🖥</div><div>Practice Lab</div>
+      <div class="btn-xp">+10 XP</div>
+    </button>
+    <button class="modal-action-btn" onclick="goTo('story','${topicId}');closeModal()">
+      <div class="btn-icon">📖</div><div>Read Story</div>
+      <div class="btn-xp">+5 XP</div>
+    </button>
+  `;
+
+  activeModal = topicId;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e){
+  if(!e || e.target===document.getElementById('modal-overlay')){
+    document.getElementById('modal-overlay').classList.remove('open');
+    activeModal = null;
+  }
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function goTo(module, topicId){
+  const file = MODULE_FILES[module];
+  if(!file) return;
+  let url = file;
+  if(topicId) url += '?topic='+topicId;
+  // Try direct navigation first; if in sandboxed artifact context, show download guide
+  try {
+    const w = window.open(url,'_blank');
+    if(!w || w.closed || typeof w.closed==='undefined'){
+      showDownloadGuide(module);
+    }
+  } catch(e) {
+    showDownloadGuide(module);
+  }
+}
+
+function showDownloadGuide(module){
+  const names = {
+    topologies:'netmind-topologies.html',
+    scenarios: 'netmind-scenarios.html',
+    labs:      'netmind-labs.html',
+    story:     'netmind-story.html',
+    tools:     'netmind-tools.html',
+  };
+  const el = document.getElementById('download-toast');
+  if(el){
+    el.querySelector('.dt-file').textContent = names[module]||module;
+    el.style.display = 'flex';
+    setTimeout(()=>el.style.display='none', 6000);
+  }
+}
+
+function resetProgress(){
+  if(!confirm('Reset ALL progress? This cannot be undone.')) return;
+  localStorage.removeItem(SK);
+  STATE = defaultState();
+  saveState();
+  renderAll();
+}
+
+function clearActivity(){
+  STATE.activity = [];
+  saveState();
+  renderActivity();
+}
+
+// ── LISTEN FOR CROSS-MODULE UPDATES ──────────────────────────────
+window.addEventListener('storage', e => {
+  if(e.key === SK){
+    STATE = loadState();
+    renderAll();
+  }
+});
+
+// ── DEMO DATA (first visit) ───────────────────────────────────────
+function seedDemoData(){
+  const demos = [
+    ['01','view',4,'Viewed STP Topology'],
+    ['01','quiz',10,'Completed STP Quiz'],
+    ['02','view',4,'Viewed VLANs Topology'],
+    ['09','view',4,'Viewed OSPF Topology'],
+    ['09','scenario',20,'Completed OSPF Scenario'],
+    ['03','view',4,'Viewed Trunking Topology'],
+  ];
+  demos.forEach(([id,type,xp,label])=>{
+    const e = STATE.expertise[id];
+    if(type==='view')     e.views=Math.min(e.views+1,5);
+    if(type==='quiz')     e.quizScore=Math.min(e.quizScore+xp,30);
+    if(type==='scenario') e.scenariosDone=1;
+    e.score = calcScore(e);
+    STATE.totalXP += xp;
+    STATE.activity.unshift({topicId:id,type,label,xp,time:Date.now()-Math.random()*3600000});
+  });
+  STATE.streak = 3;
+  STATE.lastVisit = new Date().toDateString();
+  saveState();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────
+STATE = loadState();
+if(STATE.totalXP === 0 && STATE.activity.length === 0) seedDemoData();
+buildCatFilter();
+renderAll();
+</script>
+</body>
+</html>

@@ -1,0 +1,1847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NetMind · Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800;900&family=JetBrains+Mono:wght@400;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#04050b;--s1:#07090f;--s2:#0b0d18;--s3:#0e1020;
+  --bd:rgba(255,255,255,.06);--bd2:rgba(255,255,255,.12);--bd3:rgba(255,255,255,.18);
+  --teal:#00e8c8;--blue:#4b9eff;--amber:#ffb830;--rose:#ff4060;
+  --violet:#9d6cff;--lime:#7fff54;--orange:#ff7a3d;--mid:#3d4566;
+  --text:#a0b0cc;--white:#dde8ff;--dim:#1e2236;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text);min-height:100vh;display:flex;flex-direction:column;}
+::-webkit-scrollbar{width:3px;height:3px;}::-webkit-scrollbar-thumb{background:var(--mid);}
+/* TOPBAR */
+#topbar{height:52px;background:var(--s1);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;position:sticky;top:0;z-index:100;}
+.brand{font-family:'Syne',sans-serif;font-size:16px;font-weight:900;color:var(--white);}
+.brand b{color:var(--teal);}
+.tb-sep{width:1px;height:20px;background:var(--bd2);}
+.tb-back{height:28px;padding:0 14px;border-radius:6px;background:transparent;border:1px solid var(--bd2);color:var(--text);font-size:11px;cursor:pointer;}
+.tb-back:hover{color:var(--white);}
+.tb-xp{font-family:'JetBrains Mono',monospace;font-size:10px;padding:3px 12px;border-radius:16px;color:var(--amber);background:rgba(255,184,48,.08);border:1px solid rgba(255,184,48,.2);margin-left:auto;}
+/* NAV TABS */
+#nav{display:flex;gap:4px;padding:12px 20px 0;border-bottom:1px solid var(--bd);background:var(--s1);flex-shrink:0;}
+.nav-tab{height:38px;padding:0 18px;border-radius:8px 8px 0 0;background:transparent;border:1px solid transparent;border-bottom:none;color:var(--mid);font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
+.nav-tab:hover{color:var(--text);background:rgba(255,255,255,.03);}
+.nav-tab.active{color:var(--white);background:var(--bg);border-color:var(--bd);border-bottom:1px solid var(--bg);}
+.nav-tab .nt-icon{font-size:15px;}
+/* CONTENT */
+#content{flex:1;overflow-y:auto;}
+.tool-panel{display:none;padding:28px 24px;max-width:1100px;margin:0 auto;}
+.tool-panel.active{display:block;animation:fadeIn .3s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.panel-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--white);margin-bottom:6px;}
+.panel-sub{font-size:13px;color:var(--mid);margin-bottom:24px;line-height:1.6;}
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:20px 22px;margin-bottom:16px;}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:8px;}
+/* BUTTONS */
+.btn{height:40px;padding:0 22px;border-radius:8px;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;transition:all .2s;}
+.btn-teal{background:var(--teal);color:#000;}
+.btn-teal:hover{box-shadow:0 0 18px rgba(0,232,200,.35);transform:translateY(-1px);}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-violet{background:var(--violet);color:#fff;}
+.btn-amber{background:var(--amber);color:#000;}
+.btn-lime{background:var(--lime);color:#000;}
+.btn-rose{background:var(--rose);color:#fff;}
+.btn-ghost{background:transparent;border:1px solid var(--bd2);color:var(--text);}
+.btn-ghost:hover{border-color:var(--bd3);color:var(--white);}
+.btn-sm{height:32px;padding:0 14px;font-size:11px;}
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--s1);border:1px solid var(--teal);border-radius:40px;padding:9px 22px;font-size:12px;color:var(--teal);z-index:9999;transition:transform .4s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;pointer-events:none;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+/* BADGE */
+.badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+/* PROGRESS BAR */
+.prog-wrap{height:6px;background:rgba(255,255,255,.04);border-radius:3px;overflow:hidden;}
+.prog-bar{height:100%;border-radius:3px;transition:width .5s ease;}
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+@media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr;}}
+
+/* ═══ 1. SUBNETTING DRILL ═══ */
+.subnet-wrap{max-width:680px;margin:0 auto;}
+.subnet-level-bar{display:flex;gap:8px;margin-bottom:20px;}
+.level-btn{flex:1;height:38px;border-radius:8px;border:1px solid var(--bd2);background:transparent;color:var(--mid);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;}
+.level-btn.active{border-color:var(--teal);color:var(--teal);background:rgba(0,232,200,.08);}
+.subnet-question{background:var(--s2);border:1px solid var(--bd2);border-radius:14px;padding:28px;margin-bottom:16px;text-align:center;}
+.sq-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:10px;}
+.sq-ip{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.sq-timer{font-family:'JetBrains Mono',monospace;font-size:14px;margin-top:10px;}
+.sq-timer.fast{color:var(--lime);}
+.sq-timer.warn{color:var(--amber);}
+.sq-timer.danger{color:var(--rose);}
+.subnet-inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.si-group{display:flex;flex-direction:column;gap:4px;}
+.si-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--mid);}
+.si-input{height:42px;background:rgba(0,0,0,.4);border:1px solid var(--bd2);border-radius:8px;padding:0 14px;font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--white);outline:none;transition:border-color .2s;}
+.si-input:focus{border-color:rgba(0,232,200,.4);}
+.si-input.correct{border-color:var(--lime);background:rgba(127,255,84,.06);}
+.si-input.wrong{border-color:var(--rose);background:rgba(255,64,96,.06);}
+.subnet-result{background:var(--s2);border-radius:12px;padding:18px;margin-top:14px;display:none;}
+.subnet-result.show{display:block;animation:fadeIn .3s ease;}
+.sr-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);}
+.sr-row:last-child{border:none;}
+.sr-field{font-size:11px;color:var(--mid);}
+.sr-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;}
+.sr-val.correct{color:var(--lime);}
+.sr-val.wrong{color:var(--rose);}
+.subnet-stats{display:flex;gap:16px;margin-bottom:20px;}
+.stat-box{flex:1;background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:center;}
+.stat-n{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+.stat-l{font-size:9px;color:var(--mid);margin-top:3px;text-transform:uppercase;letter-spacing:1px;}
+.method-card{background:rgba(0,232,200,.04);border:1px solid rgba(0,232,200,.15);border-radius:10px;padding:16px;margin-bottom:20px;}
+.method-title{font-size:11px;font-weight:700;color:var(--teal);margin-bottom:8px;}
+.method-step{font-size:12px;color:var(--text);margin-bottom:4px;padding-left:16px;position:relative;}
+.method-step::before{content:'▸';position:absolute;left:0;color:var(--teal);}
+
+/* ═══ 2. MOCK EXAM ═══ */
+.exam-setup{max-width:600px;margin:0 auto;text-align:center;}
+.exam-domain-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;text-align:left;}
+.edg-item{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:12px 14px;}
+.edg-domain{font-size:11px;font-weight:700;color:var(--white);}
+.edg-pct{font-size:10px;color:var(--mid);margin-top:2px;}
+.exam-wrap{max-width:760px;margin:0 auto;}
+.exam-header{display:flex;align-items:center;gap:12px;margin-bottom:18px;padding:14px 18px;background:var(--s1);border:1px solid var(--bd);border-radius:10px;}
+.exam-counter{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--mid);}
+.exam-timer{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--teal);margin-left:auto;}
+.exam-timer.warning{color:var(--amber);}
+.exam-timer.critical{color:var(--rose);animation:blink .8s infinite;}
+@keyframes blink{50%{opacity:.4}}
+.exam-prog{flex:1;max-width:200px;}
+.exam-flag{height:28px;padding:0 12px;border-radius:6px;background:rgba(255,184,48,.08);border:1px solid rgba(255,184,48,.2);color:var(--amber);font-size:10px;cursor:pointer;}
+.exam-flag.flagged{background:rgba(255,184,48,.2);color:var(--amber);}
+.question-card{background:var(--s1);border:1px solid var(--bd);border-radius:14px;padding:24px;margin-bottom:14px;}
+.q-domain{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:8px;}
+.q-type{font-size:9px;padding:2px 8px;border-radius:10px;background:var(--violet)18;color:var(--violet);border:1px solid var(--violet)33;margin-left:8px;}
+.q-text{font-size:14px;color:var(--white);font-weight:600;line-height:1.6;margin-bottom:16px;}
+.q-exhibit{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:14px;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text);line-height:1.8;}
+.q-options{display:flex;flex-direction:column;gap:8px;}
+.q-opt{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-radius:8px;border:1px solid var(--bd);background:transparent;cursor:pointer;text-align:left;transition:all .15s;width:100%;}
+.q-opt:hover{border-color:var(--bd3);background:rgba(255,255,255,.025);}
+.q-opt.selected{border-color:var(--blue);background:rgba(75,158,255,.08);}
+.q-opt.correct{border-color:var(--lime);background:rgba(127,255,84,.06);}
+.q-opt.wrong{border-color:var(--rose);background:rgba(255,64,96,.06);}
+.q-opt.reveal-correct{border-color:var(--lime);background:rgba(127,255,84,.04);}
+.opt-letter{width:26px;height:26px;border-radius:50%;background:var(--dim);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;flex-shrink:0;color:var(--mid);}
+.q-opt.selected .opt-letter{background:var(--blue);color:#fff;}
+.q-opt.correct .opt-letter,.q-opt.reveal-correct .opt-letter{background:var(--lime);color:#000;}
+.q-opt.wrong .opt-letter{background:var(--rose);color:#fff;}
+.opt-text{font-size:13px;color:var(--text);line-height:1.5;}
+.q-explanation{background:rgba(0,232,200,.04);border:1px solid rgba(0,232,200,.15);border-radius:8px;padding:14px 16px;margin-top:14px;font-size:12px;color:var(--text);line-height:1.7;display:none;}
+.q-explanation.show{display:block;}
+.q-explanation b{color:var(--teal);}
+.q-explanation .why-wrong{color:var(--rose);font-size:11px;margin-top:6px;}
+.exam-nav{display:flex;justify-content:space-between;align-items:center;margin-top:16px;}
+.q-review-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:16px 0;}
+.qrg-btn{height:32px;border-radius:5px;border:1px solid var(--bd);background:transparent;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mid);cursor:pointer;}
+.qrg-btn.answered{background:rgba(75,158,255,.1);border-color:var(--blue);color:var(--blue);}
+.qrg-btn.flagged{background:rgba(255,184,48,.1);border-color:var(--amber);color:var(--amber);}
+.qrg-btn.current{background:var(--teal);border-color:var(--teal);color:#000;}
+/* Exam results */
+.exam-results{max-width:700px;margin:0 auto;}
+.result-hero{text-align:center;padding:32px;background:var(--s1);border:1px solid var(--bd);border-radius:14px;margin-bottom:20px;}
+.result-score{font-family:'Syne',sans-serif;font-size:56px;font-weight:900;line-height:1;}
+.result-label{font-size:14px;color:var(--mid);margin-top:6px;}
+.result-pass{color:var(--lime);}
+.result-fail{color:var(--rose);}
+.domain-bar{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.db-name{font-size:12px;color:var(--text);width:220px;flex-shrink:0;}
+.db-bar{flex:1;height:10px;background:rgba(255,255,255,.04);border-radius:5px;overflow:hidden;}
+.db-fill{height:100%;border-radius:5px;}
+.db-pct{font-family:'JetBrains Mono',monospace;font-size:11px;width:36px;text-align:right;}
+
+/* ═══ 3. MISTAKE JOURNAL ═══ */
+.journal-toolbar{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;}
+.filter-btn{height:30px;padding:0 14px;border-radius:15px;border:1px solid var(--bd2);background:transparent;color:var(--mid);font-size:10px;font-weight:600;cursor:pointer;transition:all .15s;}
+.filter-btn.active{border-color:var(--violet);color:var(--violet);background:rgba(157,108,255,.08);}
+.journal-empty{text-align:center;padding:60px 20px;color:var(--mid);}
+.journal-empty-icon{font-size:40px;margin-bottom:12px;}
+.mistake-item{background:var(--s1);border:1px solid var(--bd);border-radius:10px;padding:16px 18px;margin-bottom:10px;transition:border-color .2s;}
+.mistake-item:hover{border-color:var(--bd2);}
+.mi-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;}
+.mi-icon{font-size:18px;flex-shrink:0;}
+.mi-concept{font-size:13px;font-weight:700;color:var(--white);flex:1;}
+.mi-date{font-size:10px;color:var(--mid);font-family:'JetBrains Mono',monospace;}
+.mi-type{font-size:8px;padding:2px 8px;border-radius:10px;font-weight:700;margin-left:6px;}
+.mi-detail{font-size:12px;color:var(--text);line-height:1.5;margin-bottom:10px;}
+.mi-actions{display:flex;gap:6px;}
+.mi-btn{height:26px;padding:0 12px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--mid);transition:all .15s;}
+.mi-btn:hover{color:var(--white);border-color:var(--bd3);}
+.mi-btn.drill{border-color:rgba(0,232,200,.3);color:var(--teal);background:rgba(0,232,200,.06);}
+.mi-heat{display:flex;gap:3px;margin-bottom:8px;}
+.heat-dot{width:10px;height:10px;border-radius:2px;}
+.add-mistake-form{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:18px;margin-bottom:18px;}
+.amf-row{display:flex;gap:8px;margin-bottom:8px;}
+.amf-input{flex:1;height:36px;background:rgba(0,0,0,.3);border:1px solid var(--bd2);border-radius:7px;padding:0 12px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;}
+.amf-select{height:36px;background:rgba(0,0,0,.3);border:1px solid var(--bd2);border-radius:7px;padding:0 10px;color:var(--white);font-size:12px;outline:none;}
+.amf-textarea{width:100%;min-height:60px;background:rgba(0,0,0,.3);border:1px solid var(--bd2);border-radius:7px;padding:10px 12px;color:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;outline:none;resize:none;}
+
+/* ═══ 4. DEPENDENCY MAP ═══ */
+.depmap-wrap{position:relative;}
+.depmap-legend{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+.dl-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mid);}
+.dl-dot{width:12px;height:12px;border-radius:50%;}
+.depmap-svg-wrap{background:var(--s2);border:1px solid var(--bd);border-radius:14px;overflow:hidden;position:relative;}
+#depmap-svg{width:100%;cursor:grab;}
+#depmap-svg:active{cursor:grabbing;}
+.node-tooltip{position:absolute;background:var(--s1);border:1px solid var(--bd2);border-radius:8px;padding:10px 14px;font-size:11px;color:var(--text);pointer-events:none;opacity:0;transition:opacity .2s;z-index:10;max-width:220px;}
+.node-tooltip.show{opacity:1;}
+.nt-concept{font-weight:700;color:var(--white);margin-bottom:4px;}
+.nt-status{font-size:10px;}
+.depmap-controls{display:flex;gap:8px;margin-top:12px;}
+
+/* ═══ 5. ADAPTIVE DIAGNOSTIC ═══ */
+.diag-intro{max-width:560px;margin:0 auto;text-align:center;}
+.diag-domains{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.dd-item{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;}
+.dd-name{font-size:12px;font-weight:700;color:var(--white);margin-bottom:8px;}
+.dd-bar{height:8px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden;margin-bottom:6px;}
+.dd-fill{height:100%;border-radius:4px;transition:width .6s;}
+.dd-conf{font-size:10px;color:var(--mid);}
+.diag-question{max-width:640px;margin:0 auto;}
+.dq-progress{display:flex;align-items:center;gap:12px;margin-bottom:18px;}
+.dq-step{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--mid);}
+.diag-result{max-width:680px;margin:0 auto;}
+.dr-recommendation{background:rgba(0,232,200,.04);border:1px solid rgba(0,232,200,.2);border-radius:12px;padding:20px;margin-bottom:20px;}
+.dr-rec-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--teal);margin-bottom:10px;}
+.dr-rec-item{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:12px;color:var(--text);}
+.dr-priority{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
+.study-plan{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sp-item{background:var(--s2);border-radius:8px;padding:12px 14px;border-left:3px solid var(--mid);}
+.sp-item.critical{border-left-color:var(--rose);}
+.sp-item.weak{border-left-color:var(--amber);}
+.sp-item.ok{border-left-color:var(--lime);}
+.sp-domain{font-size:12px;font-weight:700;color:var(--white);}
+.sp-action{font-size:11px;color:var(--mid);margin-top:4px;}
+
+/* ═══ 6. OPEN TROUBLESHOOTING ═══ */
+.ts-scenario-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
+.ts-scenario-card{background:var(--s1);border:1px solid var(--bd);border-radius:12px;padding:18px;cursor:pointer;transition:all .2s;}
+.ts-scenario-card:hover{border-color:var(--bd2);transform:translateY(-2px);}
+.ts-scenario-card.completed{border-color:rgba(127,255,84,.3);background:rgba(127,255,84,.03);}
+.tsc-num{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--mid);margin-bottom:6px;}
+.tsc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--white);margin-bottom:6px;}
+.tsc-symptom{font-size:11px;color:var(--text);line-height:1.5;margin-bottom:10px;}
+.tsc-meta{display:flex;gap:8px;align-items:center;}
+.tsc-diff{font-size:9px;padding:2px 8px;border-radius:10px;font-weight:700;}
+.diff-med{background:rgba(255,184,48,.1);color:var(--amber);}
+.diff-hard{background:rgba(255,64,96,.1);color:var(--rose);}
+.diff-expert{background:rgba(157,108,255,.1);color:var(--violet);}
+/* Active scenario */
+.ts-active{display:none;}
+.ts-active.show{display:flex;gap:16px;}
+.ts-left{width:320px;flex-shrink:0;display:flex;flex-direction:column;gap:12px;}
+.ts-symptom-box{background:rgba(255,64,96,.04);border:1px solid rgba(255,64,96,.2);border-radius:10px;padding:16px;}
+.tsb-label{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--rose);margin-bottom:8px;}
+.tsb-text{font-size:13px;color:var(--text);line-height:1.7;}
+.ts-topo-box{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;}
+.ts-scoring{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:14px;}
+.ts-score-item{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.ts-score-check{width:16px;height:16px;border-radius:3px;border:1px solid var(--bd2);flex-shrink:0;}
+.ts-score-check.earned{background:var(--lime);border-color:var(--lime);}
+.ts-score-label{font-size:11px;color:var(--text);}
+.ts-right{flex:1;display:flex;flex-direction:column;}
+.ts-terminal{flex:1;display:flex;flex-direction:column;background:#020304;border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.ts-term-out{flex:1;overflow-y:auto;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;min-height:300px;}
+.ts-term-in{display:flex;align-items:center;padding:6px 12px;border-top:1px solid var(--bd);}
+.ts-t-prompt{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);margin-right:6px;flex-shrink:0;}
+.ts-t-input{flex:1;background:transparent;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--white);caret-color:var(--teal);}
+.ts-methodology{margin-top:12px;}
+.ts-meth-label{font-size:11px;color:var(--mid);margin-bottom:6px;}
+.ts-meth-input{width:100%;min-height:80px;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--white);outline:none;resize:none;}
+.ts-meth-input:focus{border-color:rgba(0,232,200,.3);}
+.ts-submit-row{display:flex;gap:8px;margin-top:8px;}
+/* AI feedback */
+.ts-feedback{background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:14px;margin-top:10px;font-size:12px;color:var(--text);line-height:1.7;display:none;}
+.ts-feedback.show{display:block;}
+.ts-fb-score{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:8px;}
+
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="brand">Net<b>Mind</b> · Tools</div>
+  <div class="tb-sep"></div>
+  <button onclick="location.href='netmind-hub.html'" style="height:28px;padding:0 14px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-right:8px;">⬅ Hub</button>
+  <button class="tb-back" onclick="location.href='netmind-story.html'">← Course</button>
+  <button class="tb-back" onclick="location.href='netmind-labs.html'" style="margin-left:4px">🖥 Labs</button>
+  <div class="tb-xp" id="xp-badge">⚡ 0 XP</div>
+</div>
+
+<div id="nav">
+  <button class="nav-tab active" id="tab-subnet" onclick="switchTool('subnet')"><span class="nt-icon">🧮</span>Subnetting Drill</button>
+  <button class="nav-tab" id="tab-exam" onclick="switchTool('exam')"><span class="nt-icon">📝</span>Mock Exam</button>
+  <button class="nav-tab" id="tab-journal" onclick="switchTool('journal');renderJournal()"><span class="nt-icon">📓</span>Mistake Journal</button>
+  <button class="nav-tab" id="tab-depmap" onclick="switchTool('depmap');renderDepMap()"><span class="nt-icon">🗺</span>Concept Map</button>
+  <button class="nav-tab" id="tab-diag" onclick="switchTool('diag')"><span class="nt-icon">🎯</span>Diagnostic</button>
+  <button class="nav-tab" id="tab-ts" onclick="switchTool('ts')"><span class="nt-icon">🔧</span>Troubleshooting</button>
+</div>
+
+<div id="content">
+
+<!-- ═══ 1. SUBNETTING DRILL ═══ -->
+<div class="tool-panel active" id="panel-subnet">
+  <div class="panel-title">🧮 Subnetting Drill</div>
+  <div class="panel-sub">The fastest way to master subnetting is timed repetition. Target: all 5 fields correct in under 8 seconds. That is what exam-ready looks like.</div>
+  <div class="subnet-wrap">
+    <div class="method-card">
+      <div class="method-title">⚡ Block Size Method (memorise this)</div>
+      <div class="method-step"><b>/24=256</b> /25=128 /26=64 /27=32 /28=16 /29=8 /30=4</div>
+      <div class="method-step">Network = IP rounded DOWN to multiple of block size</div>
+      <div class="method-step">Broadcast = next network − 1 · First host = network+1 · Last host = broadcast−1</div>
+      <div class="method-step">Example: 192.168.1.200/26 → block=64 → net=192.168.1.192 → bcast=.255 → hosts .193-.254</div>
+    </div>
+    <div class="subnet-level-bar">
+      <button class="level-btn active" id="level-easy" onclick="setLevel('easy')">Easy /24-/26</button>
+      <button class="level-btn" id="level-medium" onclick="setLevel('medium')">Medium /25-/28</button>
+      <button class="level-btn" id="level-hard" onclick="setLevel('hard')">Hard /20-/29</button>
+    </div>
+    <div class="subnet-stats">
+      <div class="stat-box"><div class="stat-n" id="subnet-correct" style="color:var(--lime)">0</div><div class="stat-l">Correct</div></div>
+      <div class="stat-box"><div class="stat-n" id="subnet-total" style="color:var(--blue)">0</div><div class="stat-l">Total</div></div>
+      <div class="stat-box"><div class="stat-n" id="subnet-accuracy" style="color:var(--teal)">—</div><div class="stat-l">Accuracy</div></div>
+      <div class="stat-box"><div class="stat-n" id="subnet-avgtime" style="color:var(--amber)">—</div><div class="stat-l">Avg Time</div></div>
+    </div>
+    <div class="subnet-question">
+      <div class="sq-label">FIND THE SUBNET DETAILS FOR</div>
+      <div class="sq-ip" id="subnet-ip">Press Start</div>
+      <div class="sq-timer" id="subnet-timer" style="color:var(--mid)">—</div>
+    </div>
+    <div class="subnet-inputs">
+      <div class="si-group"><div class="si-label">Network Address</div><input class="si-input" id="si-network" placeholder="x.x.x.x" onkeydown="if(event.key==='Enter')document.getElementById('si-broadcast').focus()"></div>
+      <div class="si-group"><div class="si-label">Broadcast Address</div><input class="si-input" id="si-broadcast" placeholder="x.x.x.x" onkeydown="if(event.key==='Enter')document.getElementById('si-first').focus()"></div>
+      <div class="si-group"><div class="si-label">First Usable Host</div><input class="si-input" id="si-first" placeholder="x.x.x.x" onkeydown="if(event.key==='Enter')document.getElementById('si-last').focus()"></div>
+      <div class="si-group"><div class="si-label">Last Usable Host</div><input class="si-input" id="si-last" placeholder="x.x.x.x" onkeydown="if(event.key==='Enter')document.getElementById('si-next').focus()"></div>
+      <div class="si-group"><div class="si-label">Next Network</div><input class="si-input" id="si-next" placeholder="x.x.x.x" onkeydown="if(event.key==='Enter')checkSubnet()"></div>
+      <div class="si-group" style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn btn-teal" onclick="checkSubnet()" style="flex:1">Check ✓</button>
+        <button class="btn btn-ghost" onclick="startSubnetDrill()" style="flex:1">New Question</button>
+      </div>
+    </div>
+    <div class="subnet-result" id="subnet-result"></div>
+    <div style="text-align:center;margin-top:16px">
+      <button class="btn btn-teal" onclick="startSubnetDrill()">▶ Start Drill</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 2. MOCK EXAM ═══ -->
+<div class="tool-panel" id="panel-exam">
+  <!-- Setup -->
+  <div id="exam-setup">
+    <div class="panel-title">📝 CCNA Mock Exam</div>
+    <div class="panel-sub">120 questions · 90 minutes · 80% to pass · Full explanations on every answer · Matches the real exam domain weighting.</div>
+    <div class="exam-setup">
+      <div class="exam-domain-grid">
+        <div class="edg-item"><div class="edg-domain">Network Fundamentals</div><div class="edg-pct">20% · ~24 questions</div></div>
+        <div class="edg-item"><div class="edg-domain">Network Access</div><div class="edg-pct">20% · ~24 questions</div></div>
+        <div class="edg-item"><div class="edg-domain">IP Connectivity</div><div class="edg-pct">25% · ~30 questions</div></div>
+        <div class="edg-item"><div class="edg-domain">IP Services</div><div class="edg-pct">10% · ~12 questions</div></div>
+        <div class="edg-item"><div class="edg-domain">Security Fundamentals</div><div class="edg-pct">15% · ~18 questions</div></div>
+        <div class="edg-item"><div class="edg-domain">Automation</div><div class="edg-pct">10% · ~12 questions</div></div>
+      </div>
+      <button class="btn btn-teal" style="width:200px" onclick="startExam()">▶ Start 90-Minute Exam</button>
+      <div style="font-size:11px;color:var(--mid);margin-top:10px">Questions are shuffled each attempt · Wrong answers auto-added to Mistake Journal</div>
+    </div>
+  </div>
+  <!-- Active exam -->
+  <div id="exam-active" style="display:none">
+    <div class="exam-wrap">
+      <div class="exam-header">
+        <span class="exam-counter" id="exam-q-num">Q1 of 120</span>
+        <div class="exam-prog prog-wrap" style="max-width:200px"><div class="prog-bar" id="exam-prog-fill" style="background:var(--teal);width:0%"></div></div>
+        <button class="exam-flag" id="exam-flag-btn" onclick="flagQuestion()">🚩 Flag</button>
+        <div class="exam-timer" id="exam-timer">90:00</div>
+      </div>
+      <div id="exam-question"></div>
+      <div class="exam-nav">
+        <button class="btn btn-ghost btn-sm" onclick="prevExamQ()">← Prev</button>
+        <div class="q-review-grid" id="q-review-grid" style="flex:1;margin:0 12px"></div>
+        <button class="btn btn-ghost btn-sm" onclick="nextExamQ()">Next →</button>
+      </div>
+      <div style="text-align:center;margin-top:16px;display:flex;gap:10px;justify-content:center">
+        <button class="btn btn-ghost btn-sm" onclick="nextExamQ()">Next Question →</button>
+        <button class="btn btn-rose btn-sm" onclick="if(confirm('Submit exam?'))submitExam()">Submit Exam</button>
+      </div>
+    </div>
+  </div>
+  <!-- Results -->
+  <div id="exam-results" style="display:none">
+    <div class="exam-results">
+      <div class="result-hero">
+        <div class="result-score" id="result-score">—</div>
+        <div class="result-label" id="result-verdict"></div>
+        <div style="font-size:12px;color:var(--mid);margin-top:8px" id="result-summary"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Domain Breakdown</div>
+        <div id="domain-bars"></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px">
+        <button class="btn btn-teal" onclick="reviewExam()">Review All Answers</button>
+        <button class="btn btn-ghost" onclick="document.getElementById('exam-results').style.display='none';document.getElementById('exam-setup').style.display='block'">Retake Exam</button>
+      </div>
+    </div>
+  </div>
+  <!-- Review -->
+  <div id="exam-review" style="display:none">
+    <div style="margin-bottom:14px;display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('exam-review').style.display='none';document.getElementById('exam-results').style.display='block'">← Back to Results</button>
+    </div>
+    <div id="exam-review-content"></div>
+  </div>
+</div>
+
+<!-- ═══ 3. MISTAKE JOURNAL ═══ -->
+<div class="tool-panel" id="panel-journal">
+  <div class="panel-title">📓 Mistake Journal</div>
+  <div class="panel-sub">Every failed Feynman challenge, SR card rated 0-2, wrong exam answer, and lab verification failure is automatically logged here. Review your mistakes — that is the highest-ROI study activity before your exam.</div>
+  <div class="add-mistake-form">
+    <div style="font-size:11px;font-weight:700;color:var(--mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px">Add Manual Entry</div>
+    <div class="amf-row">
+      <input class="amf-input" id="manual-concept" placeholder="Concept or topic">
+      <select class="amf-select" id="manual-domain">
+        <option>Network Fundamentals</option><option>Network Access</option>
+        <option>IP Connectivity</option><option>IP Services</option>
+        <option>Security Fundamentals</option><option>Automation</option>
+      </select>
+    </div>
+    <textarea class="amf-textarea" id="manual-detail" placeholder="What specifically did you get wrong? What is the correct answer?"></textarea>
+    <div style="margin-top:8px"><button class="btn btn-violet btn-sm" onclick="addManualMistake()">Log Mistake</button></div>
+  </div>
+  <div class="journal-toolbar">
+    <button class="filter-btn active" onclick="journalFilter='all';this.closest('.journal-toolbar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderJournal()">All</button>
+    <button class="filter-btn" onclick="journalFilter='exam';this.closest('.journal-toolbar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderJournal()">Exam</button>
+    <button class="filter-btn" onclick="journalFilter='feynman';this.closest('.journal-toolbar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderJournal()">Feynman</button>
+    <button class="filter-btn" onclick="journalFilter='lab';this.closest('.journal-toolbar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderJournal()">Labs</button>
+    <button class="filter-btn" onclick="journalFilter='drill';this.closest('.journal-toolbar').querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active');renderJournal()">Drills</button>
+    <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="if(confirm('Clear all?')){mistakeJournal=[];saveData();renderJournal()}">Clear All</button>
+  </div>
+  <div id="journal-list"></div>
+</div>
+
+<!-- ═══ 4. CONCEPT MAP ═══ -->
+<div class="tool-panel" id="panel-depmap">
+  <div class="panel-title">🗺 Concept Dependency Map</div>
+  <div class="panel-sub">Every CCNA concept and the prerequisites it depends on. Green = completed in your course session. Click any node to see what it requires and what it unlocks.</div>
+  <div class="depmap-legend">
+    <div class="dl-item"><div class="dl-dot" style="background:#4b9eff"></div>Network Fundamentals</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#00e8c8"></div>Network Access</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#9d6cff"></div>IP Connectivity</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#ff7a3d"></div>IP Services</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#ff4060"></div>Security</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#7fff54"></div>Automation</div>
+    <div class="dl-item"><div class="dl-dot" style="background:#3d4566"></div>Not yet completed</div>
+  </div>
+  <div class="depmap-svg-wrap">
+    <div id="depmap-svg" style="min-height:400px"></div>
+    <div class="node-tooltip" id="node-tooltip"></div>
+  </div>
+  <div class="depmap-controls">
+    <button class="btn btn-ghost btn-sm" onclick="renderDepMap()">↻ Refresh from Course</button>
+    <span style="font-size:11px;color:var(--mid)">Open netmind-story.html first to load your progress</span>
+  </div>
+</div>
+
+<!-- ═══ 5. ADAPTIVE DIAGNOSTIC ═══ -->
+<div class="tool-panel" id="panel-diag">
+  <div class="panel-title">🎯 Adaptive Diagnostic</div>
+  <div class="panel-sub">20 questions across all 6 CCNA domains. Each answer updates your confidence score per domain. At the end you get a personalised study plan — ranked by where to spend your time first.</div>
+  <!-- Intro -->
+  <div id="diag-intro" class="diag-intro">
+    <div style="font-size:48px;margin-bottom:16px">🎯</div>
+    <div class="panel-title">Find your gaps in 20 questions</div>
+    <div class="panel-sub">Takes about 5 minutes. No preparation needed — just answer honestly. The harder you find a question the more valuable the result.</div>
+    <div id="diag-domain-preview" class="diag-domains" style="margin-top:20px">
+      <div class="dd-item"><div class="dd-name">Network Fundamentals</div><div class="dd-bar"><div class="dd-fill" style="width:50%;background:var(--mid)"></div></div><div class="dd-conf">Not assessed yet</div></div>
+      <div class="dd-item"><div class="dd-name">Network Access</div><div class="dd-bar"><div class="dd-fill" style="width:50%;background:var(--mid)"></div></div><div class="dd-conf">Not assessed yet</div></div>
+      <div class="dd-item"><div class="dd-name">IP Connectivity</div><div class="dd-bar"><div class="dd-fill" style="width:50%;background:var(--mid)"></div></div><div class="dd-conf">Not assessed yet</div></div>
+      <div class="dd-item"><div class="dd-name">IP Services</div><div class="dd-bar"><div class="dd-fill" style="width:50%;background:var(--mid)"></div></div><div class="dd-conf">Not assessed yet</div></div>
+      <div class="dd-item"><div class="dd-name">Security Fundamentals</div><div class="dd-bar"><div class="dd-fill" style="width:50%;background:var(--mid)"></div></div><div class="dd-conf">Not assessed yet</div></div>
+      <div class="dd-item"><div class="dd-name">Automation</div><div class="dd-bar"><div class="dd-fill" style="width:50%;background:var(--mid)"></div></div><div class="dd-conf">Not assessed yet</div></div>
+    </div>
+    <button class="btn btn-teal" style="margin-top:20px" onclick="startDiagnostic()">▶ Start Diagnostic</button>
+  </div>
+  <!-- Active -->
+  <div id="diag-active" class="diag-question" style="display:none">
+    <div class="dq-progress">
+      <span class="dq-step" id="diag-step">Question 1 of 20</span>
+      <div class="prog-wrap" style="flex:1;max-width:300px"><div class="prog-bar" id="diag-prog-fill" style="background:var(--teal);width:0%"></div></div>
+    </div>
+    <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:6px" id="diag-domain-label">Domain</div>
+    <div class="question-card">
+      <div class="q-text" id="diag-question-text"></div>
+      <div class="q-options" id="diag-options"></div>
+    </div>
+  </div>
+  <!-- Results -->
+  <div id="diag-results" style="display:none">
+    <div class="diag-result">
+      <div class="dr-recommendation">
+        <div class="dr-rec-title">📋 Your Personalised Study Plan</div>
+        <div id="diag-recommendation" style="font-size:12px;color:var(--text);line-height:1.6"></div>
+      </div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Domain Confidence Scores</div>
+        <div class="diag-domains" id="diag-domain-bars"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Priority Study Plan</div>
+        <div class="study-plan" id="study-plan"></div>
+      </div>
+      <div style="margin-top:16px;display:flex;gap:10px">
+        <button class="btn btn-teal" onclick="document.getElementById('diag-results').style.display='none';document.getElementById('diag-intro').style.display='block'">Retake Diagnostic</button>
+        <button class="btn btn-ghost" onclick="switchTool('exam')">Take Mock Exam →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 6. TROUBLESHOOTING ═══ -->
+<div class="tool-panel" id="panel-ts">
+  <div class="panel-title">🔧 Open-Ended Troubleshooting</div>
+  <div class="panel-sub">10 scenarios. No task list. Just a symptom description and a terminal. Diagnose, find the root cause, fix it, and verify. Describe your methodology for AI grading.</div>
+  <!-- Grid -->
+  <div class="ts-scenario-grid" id="ts-scenario-grid">
+    <div class="ts-scenario-card completed" onclick="loadTSScenario(0)">
+      <div class="tsc-num">SCENARIO 01</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(1)">
+      <div class="tsc-num">SCENARIO 02</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(2)">
+      <div class="tsc-num">SCENARIO 03</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(3)">
+      <div class="tsc-num">SCENARIO 04</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(4)">
+      <div class="tsc-num">SCENARIO 05</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(5)">
+      <div class="tsc-num">SCENARIO 06</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(6)">
+      <div class="tsc-num">SCENARIO 07</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(7)">
+      <div class="tsc-num">SCENARIO 08</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(8)">
+      <div class="tsc-num">SCENARIO 09</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>    <div class="ts-scenario-card " onclick="loadTSScenario(9)">
+      <div class="tsc-num">SCENARIO 10</div>
+      <div class="tsc-title">{title}</div>
+      <div class="tsc-symptom">{symptom_short}</div>
+      <div class="tsc-meta"><span class="tsc-diff {diffClass}">{difficulty}</span></div>
+    </div>
+  </div>
+  <!-- Active scenario -->
+  <div class="ts-active" id="ts-active">
+    <div class="ts-left">
+      <div class="ts-symptom-box">
+        <div class="tsb-label">⚠ Reported Symptom</div>
+        <div class="tsb-text" id="ts-symptom-text"></div>
+      </div>
+      <div class="ts-topo-box">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:8px">Topology</div>
+        <div id="ts-topo-svg"></div>
+      </div>
+      <div class="ts-scoring">
+        <div style="font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:8px">Scoring Criteria</div>
+        <div id="ts-score-items"></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('ts-active').classList.remove('show');document.getElementById('ts-scenario-grid').style.display='grid'">← All Scenarios</button>
+    </div>
+    <div class="ts-right">
+      <div class="ts-terminal">
+        <div class="term-hdr" style="padding:6px 10px">
+          <div class="dev-tabs" id="ts-dev-tabs"></div>
+          <button class="t-btn" onclick="clearTSTerminal()">Clear</button>
+        </div>
+        <div class="ts-term-out t-out" id="ts-term-out" style="font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.8;flex:1;overflow-y:auto;padding:8px 12px;min-height:300px"></div>
+        <div class="ts-term-in term-in">
+          <span class="ts-t-prompt t-prompt" id="ts-t-prompt">Router></span>
+          <input class="ts-t-input t-input" id="ts-t-input" autocomplete="off" spellcheck="false" placeholder="type IOS command...">
+        </div>
+      </div>
+      <div class="ts-methodology">
+        <div class="ts-meth-label">Describe your methodology — what you checked, what you found, how you fixed it, how you'd prevent it:</div>
+        <textarea class="ts-meth-input" id="ts-methodology-text" placeholder="I started by running show... which revealed... The root cause was... I fixed it by... To prevent recurrence I would..."></textarea>
+        <div class="ts-submit-row">
+          <button class="btn btn-violet btn-sm" onclick="submitTSMethodology()">🧠 Get AI Feedback</button>
+          <button class="btn btn-teal btn-sm" onclick="checkTSScoring()">✓ Check Scoring</button>
+        </div>
+        <div class="ts-feedback" id="ts-feedback"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   EXAM QUESTIONS — 120 questions, 6 domains
+═══════════════════════════════════════════════ */
+const EXAM_QUESTIONS = [
+// ── DOMAIN 1: Network Fundamentals (20%) ──
+{id:1,domain:'Network Fundamentals',q:'Which OSI layer adds a source and destination MAC address to a PDU?',opts:['Layer 1 — Physical','Layer 2 — Data Link','Layer 3 — Network','Layer 4 — Transport'],correct:1,multi:false,explanation:'<b>Layer 2 (Data Link)</b> adds MAC addresses as it creates a frame. Layer 3 adds IP addresses (packets). Layer 4 adds port numbers (segments). The MAC address is only meaningful on the local network segment — routers strip and replace it at each hop.',wrongExplain:'Layer 3 adds IP addresses not MACs. Layer 4 adds port numbers. Layer 1 only deals with bits on wire.'},
+{id:2,domain:'Network Fundamentals',q:'What is the correct decimal value of the binary number 11001010?',opts:['194','202','210','198'],correct:1,multi:false,explanation:'<b>11001010</b>: 128+64+0+0+8+2+0 = <b>202</b>. Method: 128(1)+64(1)+32(0)+16(0)+8(1)+4(0)+2(1)+1(0) = 128+64+8+2 = 202.',wrongExplain:'194=11000010, 210=11010010, 198=11000110. Check each bit position carefully.'},
+{id:3,domain:'Network Fundamentals',q:'Which TWO statements correctly describe the TCP three-way handshake?',opts:['The client sends SYN to initiate','The server responds with SYN only','The server responds with SYN-ACK','The connection is established after the server sends SYN-ACK'],correct:[0,2],multi:true,explanation:'TCP handshake: <b>1) Client → SYN</b> (I want to connect, here is my ISN), <b>2) Server → SYN-ACK</b> (acknowledged + here is my ISN), <b>3) Client → ACK</b> (acknowledged). Connection is established after the third step (ACK), not after SYN-ACK.',wrongExplain:'The server never sends SYN alone — it always responds with SYN-ACK. The connection is fully established only after the final ACK.'},
+{id:4,domain:'Network Fundamentals',q:'A network administrator needs to design a network with 50 hosts. Which subnet mask provides exactly enough addresses with the LEAST waste?',opts:['/25 — 126 hosts','  /26 — 62 hosts','/27 — 30 hosts','/24 — 254 hosts'],correct:1,multi:false,explanation:'<b>/26</b> provides 64 addresses (62 usable) which covers 50 hosts with minimal waste. /25 (126 usable) wastes 76 addresses. /27 (30 usable) is too small. /24 (254 usable) wastes 204 addresses.',wrongExplain:'/27 only provides 30 usable addresses which is less than 50. /25 and /24 work but waste significantly more addresses than /26.'},
+{id:5,domain:'Network Fundamentals',q:'Which protocol uses UDP port 69?',opts:['FTP','TFTP','SSH','SFTP'],correct:1,multi:false,explanation:'<b>TFTP (Trivial File Transfer Protocol)</b> uses UDP 69. It has no authentication, no directory listing — it is used for IOS image transfers and PXE booting. FTP uses TCP 20/21. SSH uses TCP 22. SFTP runs over SSH (TCP 22).',wrongExplain:'FTP=TCP 20/21, SSH=TCP 22, SFTP=TCP 22 (over SSH). SFTP is NOT FTP over SSL — that is FTPS.'},
+{id:6,domain:'Network Fundamentals',q:'What is the broadcast address for the subnet 192.168.10.64/26?',opts:['192.168.10.126','192.168.10.127','192.168.10.128','192.168.10.255'],correct:1,multi:false,explanation:'/26 has block size 64. Subnet starts at .64, next subnet starts at .128. <b>Broadcast = next subnet minus 1 = .127</b>. Range: .64 (network), .65-.126 (hosts), .127 (broadcast).',wrongExplain:'.126 is the last usable host, not the broadcast. .128 is the next subnet\'s network address. .255 is the broadcast for a /24.'},
+{id:7,domain:'Network Fundamentals',q:'Which layer of the TCP/IP model corresponds to both the OSI Session and Presentation layers?',opts:['Network Access','Internet','Transport','Application'],correct:3,multi:false,explanation:'The <b>TCP/IP Application layer</b> combines OSI layers 5 (Session), 6 (Presentation), and 7 (Application). TCP/IP has 4 layers: Application, Transport, Internet, Network Access.',wrongExplain:'Internet=OSI Network(L3). Transport=OSI Transport(L4). Network Access=OSI Physical+Data Link(L1+L2).'},
+{id:8,domain:'Network Fundamentals',q:'Which address type is 172.25.100.50?',opts:['Public IPv4','Private RFC 1918','APIPA','Loopback'],correct:1,multi:false,explanation:'<b>172.16.0.0/12</b> covers 172.16.0.0 through 172.31.255.255 — this is RFC 1918 private. 172.25.x.x falls within this range. APIPA = 169.254.0.0/16. Loopback = 127.0.0.0/8.',wrongExplain:'The RFC 1918 172.x range is /12 — it covers ALL of 172.16.x.x through 172.31.x.x, not just 172.16.x.x. Many people miss that 172.25.x.x is private.'},
+{id:9,domain:'Network Fundamentals',q:'A switch receives a frame destined for a MAC address not in its CAM table. What does it do?',opts:['Drops the frame','Floods the frame out ALL ports except the ingress','Sends it to the default gateway','Broadcasts an ARP request'],correct:1,multi:false,explanation:'This is called <b>unknown unicast flooding</b>. The switch floods the frame out all ports except the one it arrived on. When the destination replies, the switch learns its location and future frames are forwarded only to the correct port.',wrongExplain:'Dropping would break connectivity — the device exists, the switch just doesn\'t know where. Switches don\'t use ARP or default gateways for frame forwarding.'},
+{id:10,domain:'Network Fundamentals',q:'Which THREE protocols operate at the Application layer of the TCP/IP model?',opts:['HTTP','TCP','DNS','SMTP','IP'],correct:[0,2,3],multi:true,explanation:'<b>HTTP (80), DNS (53), SMTP (25)</b> all operate at the Application layer. TCP is at the Transport layer. IP is at the Internet/Network layer.',wrongExplain:'TCP provides reliable transport (Transport layer). IP handles addressing and routing (Internet layer). HTTP, DNS, and SMTP are application protocols used directly by end-user applications.'},
+{id:11,domain:'Network Fundamentals',q:'What is the purpose of the "ip domain-lookup" command on a Cisco router?',opts:['Enables DNS resolution of hostnames','Configures the router as a DNS server','Sets the domain name for SSH key generation','Enables CDP on all interfaces'],correct:0,multi:false,explanation:'<b>ip domain-lookup</b> (enabled by default) allows the router to resolve hostnames using DNS. Many lab guides say "no ip domain-lookup" to prevent 30-second hangs on mistyped commands — but in production this must be enabled.',wrongExplain:'The DNS server is configured with "ip name-server". Domain name for SSH uses "ip domain-name". CDP uses "cdp run".'},
+{id:12,domain:'Network Fundamentals',q:'Which type of UTP cable would you use to connect a PC directly to a router\'s Ethernet interface?',opts:['Straight-through','Crossover','Rollover/Console','Coaxial'],correct:0,multi:false,explanation:'A <b>straight-through</b> cable connects unlike devices (PC to switch, switch to router). A crossover connects like devices (PC to PC, switch to switch). Modern devices with Auto-MDIX detect and adjust automatically, but the exam expects you to know the legacy rule.',wrongExplain:'Crossover is for like-to-like (PC-to-PC, switch-to-switch). Rollover/console is for console port access. Coaxial is not used for modern Ethernet.'},
+{id:13,domain:'Network Fundamentals',q:'A network administrator runs "no ip domain-lookup" on a production router. What is the impact?',opts:['SSH stops working','DNS resolution of hostnames fails','CDP is disabled','NTP synchronisation fails'],correct:1,multi:false,explanation:'<b>no ip domain-lookup</b> disables DNS hostname resolution. The router can no longer resolve names like "google.com" to IP addresses. SSH key generation requires "ip domain-name" (different command) — SSH itself still works if keys are already generated.',wrongExplain:'SSH key generation needs "ip domain-name" not domain-lookup. CDP is independent. NTP uses IP addresses not hostnames in most configs.'},
+{id:14,domain:'Network Fundamentals',q:'What does the "?" character do when typed at a Cisco IOS prompt?',opts:['Exits config mode','Shows available commands or completes a partial command','Clears the terminal','Enables debug mode'],correct:1,multi:false,explanation:'The <b>?</b> key is context-sensitive help in IOS. Typed alone, it lists all available commands. Typed after a partial command (e.g., "show ?"), it lists valid completions. This is one of the most important IOS navigation tools.',wrongExplain:'Ctrl+Z exits config mode. "clear" clears the screen. Debug is enabled with the "debug" command.'},
+{id:15,domain:'Network Fundamentals',q:'Which statement about full-duplex Ethernet is correct?',opts:['Devices take turns transmitting using CSMA/CD','Both devices can transmit simultaneously with no collisions','Only one device can transmit at a time','Maximum speed is limited to 100 Mbps'],correct:1,multi:false,explanation:'<b>Full-duplex</b> allows simultaneous transmission in both directions — no CSMA/CD needed, no collisions possible. Each direction uses separate wire pairs. This doubles effective throughput compared to half-duplex.',wrongExplain:'CSMA/CD is used in half-duplex. Full-duplex can operate at any speed (1G, 10G, 40G, etc.). The "one device at a time" rule is half-duplex.'},
+{id:16,domain:'Network Fundamentals',q:'What is the default administrative distance of OSPF?',opts:['90','100','110','120'],correct:2,multi:false,explanation:'<b>OSPF AD = 110</b>. Key ADs to memorise: Connected=0, Static=1, EIGRP Summary=5, eBGP=20, EIGRP Internal=90, IGRP=100, <b>OSPF=110</b>, IS-IS=115, RIP=120, EIGRP External=170, iBGP=200.',wrongExplain:'90=EIGRP internal, 100=IGRP, 120=RIP. OSPF is 110.'},
+{id:17,domain:'Network Fundamentals',q:'Which IPv6 address type is automatically assigned to every IPv6-enabled interface and is non-routable?',opts:['Global unicast','Unique local','Link-local','Loopback'],correct:2,multi:false,explanation:'<b>Link-local (FE80::/10)</b> addresses are automatically configured on every IPv6 interface and are only valid on the local link — routers do NOT forward them. They are used for NDP (Neighbour Discovery Protocol) and OSPF.',wrongExplain:'Global unicast (2000::/3) is internet-routable. Unique local (FC00::/7) is like RFC 1918 — private but not auto-assigned. Loopback is ::1/128.'},
+{id:18,domain:'Network Fundamentals',q:'A PC receives an IP address of 169.254.45.22. What is the most likely cause?',opts:['The DHCP server assigned this as a static IP','DHCP failed and the PC assigned itself an APIPA address','This is a valid RFC 1918 private address','The default gateway is misconfigured'],correct:1,multi:false,explanation:'<b>169.254.0.0/16 is APIPA (Automatic Private IP Addressing)</b>. Windows assigns this when DHCP fails — the PC sends DHCP Discover, gets no response, and self-assigns from 169.254.1.0 to 169.254.254.255. The device cannot reach the internet with this address.',wrongExplain:'APIPA is never assigned by a DHCP server. It is not RFC 1918. The default gateway issue would cause routing problems not APIPA.'},
+{id:19,domain:'Network Fundamentals',q:'Which command displays the MAC address table on a Cisco switch?',opts:['show arp','show mac address-table','show cam','show interfaces mac'],correct:1,multi:false,explanation:'<b>show mac address-table</b> displays the CAM (Content Addressable Memory) table showing MAC addresses, their associated VLAN, and the port they were learned on. "show arp" shows IP-to-MAC mappings (Layer 3). There is no "show cam" command.',wrongExplain:'"show arp" is a router command showing IP-to-MAC mappings. "show cam" is not a valid IOS command. "show interfaces" shows interface statistics but not the MAC table.'},
+{id:20,domain:'Network Fundamentals',q:'What is the subnet mask in dotted decimal for /27?',opts:['255.255.255.192','255.255.255.224','255.255.255.240','255.255.255.248'],correct:1,multi:false,explanation:'/27 = 32-27 = 5 host bits. Mask = 11111111.11111111.11111111.11100000 = <b>255.255.255.224</b>. Block size = 32. /26=192, /27=224, /28=240, /29=248.',wrongExplain:'/26=192, /28=240, /29=248. For /27: the last octet has 3 mask bits set = 128+64+32 = 224.'},
+
+// ── DOMAIN 2: Network Access (20%) ──
+{id:21,domain:'Network Access',q:'What is the purpose of a trunk port on a Cisco switch?',opts:['Connects end-user devices to the switch','Carries traffic for multiple VLANs between switches','Provides power over Ethernet to connected devices','Acts as a backup uplink using STP'],correct:1,multi:false,explanation:'A <b>trunk port</b> carries traffic for multiple VLANs simultaneously between switches (or to a router). It uses 802.1Q tagging to identify which VLAN each frame belongs to. Access ports carry traffic for only ONE VLAN.',wrongExplain:'End-user devices connect to access ports, not trunk ports. PoE is a physical-layer capability. STP backup links are blocked ports, not trunk ports.'},
+{id:22,domain:'Network Access',q:'Which STP port state immediately forwards traffic without going through Listening and Learning states?',opts:['Blocking','Forwarding','PortFast','Root Port'],correct:2,multi:false,explanation:'<b>PortFast</b> bypasses the 15-second Listening and 15-second Learning states, immediately placing the port in Forwarding state. It is designed for access ports connecting to end devices (not switches). Always combine with BPDU Guard.',wrongExplain:'Blocking and Forwarding are normal STP states, not mechanisms to bypass delays. Root Port is a port role, not a state that bypasses delays.'},
+{id:23,domain:'Network Access',q:'What happens when a PortFast-enabled port receives a BPDU with BPDU Guard configured?',opts:['The port is placed in Blocking state','The port is placed in err-disable state','The BPDU is ignored','The switch becomes the root bridge'],correct:1,multi:false,explanation:'<b>BPDU Guard</b> places the port in <b>err-disable</b> state immediately when a BPDU is received. This prevents a rogue switch from influencing STP. The port must be manually re-enabled or auto-recovery configured.',wrongExplain:'Blocking is a normal STP state, not err-disable. Ignoring BPDUs would leave the loop — the whole point is to detect rogue switches. BPDU Guard protects against topology changes.'},
+{id:24,domain:'Network Access',q:'A switch port is configured as: switchport mode trunk, switchport trunk native vlan 10. What happens to frames in VLAN 10 on this trunk?',opts:['They are tagged with VLAN 10','They are sent untagged','They are dropped','They are forwarded to all VLANs'],correct:1,multi:false,explanation:'The <b>native VLAN</b> is sent <b>untagged</b> on a trunk. Any frame received untagged is placed in the native VLAN. This creates a security risk if both ends don\'t match — a VLAN hopping attack becomes possible.',wrongExplain:'All other VLANs are tagged. Native VLAN is specifically the one exception that is NOT tagged. If both ends have different native VLANs, traffic leaks between VLANs.'},
+{id:25,domain:'Network Access',q:'Which command configures a switch port as an access port in VLAN 20?',opts:['switchport vlan 20','switchport access vlan 20','switchport mode access vlan 20','vlan 20 access'],correct:1,multi:false,explanation:'The correct sequence is: <b>switchport mode access</b> (sets port type) then <b>switchport access vlan 20</b> (assigns VLAN). The command "switchport access vlan 20" alone implicitly enables access mode on most IOS versions.',wrongExplain:'"switchport vlan 20" is not valid syntax. "switchport mode access vlan 20" combines two separate commands incorrectly. "vlan 20 access" is not valid.'},
+{id:26,domain:'Network Access',q:'What is the default STP bridge priority on a Cisco switch?',opts:['0','4096','32768','65535'],correct:2,multi:false,explanation:'The default STP bridge priority is <b>32768</b>. When two switches have the same priority, the switch with the lower MAC address wins the root election. "spanning-tree vlan X root primary" sets priority to 24576.',wrongExplain:'0 would guarantee root but is not the default. 4096 is a valid priority (multiples of 4096 required). 65535 would make the switch least likely to be root.'},
+{id:27,domain:'Network Access',q:'An EtherChannel is formed using LACP. Which combination of modes will successfully form the bundle?',opts:['Active-Active','Passive-Passive','Active-Passive','On-Active'],correct:[0,2],multi:true,explanation:'LACP modes: <b>Active</b> (initiates negotiation), <b>Passive</b> (responds but does not initiate). Valid combinations: <b>Active-Active</b> ✓, <b>Active-Passive</b> ✓. Passive-Passive NEVER forms (neither side initiates). "On" forces the bundle without negotiation — combining On with LACP modes causes issues.',wrongExplain:'Passive-Passive will never form because neither switch sends LACP PDUs to initiate the bundle. Both must be On for the static "On" mode to work.'},
+{id:28,domain:'Network Access',q:'Which protocol does a Cisco switch use to discover directly connected Cisco devices?',opts:['LLDP','CDP','STP','VTP'],correct:1,multi:false,explanation:'<b>CDP (Cisco Discovery Protocol)</b> is Cisco-proprietary and discovers directly connected Cisco devices. It reveals device hostname, IP, IOS version, capabilities, and port. LLDP is the vendor-neutral IEEE 802.1AB equivalent.',wrongExplain:'LLDP is vendor-neutral (works with non-Cisco devices). STP prevents loops. VTP synchronises VLAN databases.'},
+{id:29,domain:'Network Access',q:'What is the maximum number of VLANs supported by 802.1Q?',opts:['256','1024','4094','65535'],correct:2,multi:false,explanation:'802.1Q uses a <b>12-bit VLAN ID field</b>, supporting values 0–4095. VLANs 0 and 4095 are reserved, leaving <b>4094 usable VLANs</b>. Normal range: 1–1005 (stored in NVRAM). Extended range: 1006–4094 (requires VTP transparent mode).',wrongExplain:'The 12-bit field allows 4096 values (0-4095). Subtracting 2 reserved values leaves 4094 usable VLANs.'},
+{id:30,domain:'Network Access',q:'A switch shows "err-disabled" on port Gi0/1. Which TWO actions could cause this?',opts:['PortFast enabled on the port','BPDU Guard detecting a BPDU on a PortFast port','Port security maximum MAC violation','The connected device sending too many ARPs'],correct:[1,2],multi:true,explanation:'Err-disable causes include: <b>BPDU Guard</b> (BPDU received on PortFast port), <b>Port Security violation</b> (shutdown mode), UDLD, Loop Guard, and others. PortFast itself does not cause err-disable — only BPDU Guard + BPDU does.',wrongExplain:'PortFast alone does not err-disable a port — BPDU Guard must also be configured and a BPDU received. ARP storms would cause high CPU not err-disable.'},
+{id:31,domain:'Network Access',q:'What does the "switchport trunk allowed vlan add 30" command do?',opts:['Creates VLAN 30 and adds it to the trunk','Adds VLAN 30 to the existing allowed list without removing others','Replaces the allowed VLANs list with only VLAN 30','Enables VLAN 30 as the native VLAN'],correct:1,multi:false,explanation:'The <b>add</b> keyword appends VLAN 30 to the existing allowed list. Without "add", the command "switchport trunk allowed vlan 30" would REPLACE the entire allowed list with only VLAN 30, breaking all other VLANs.',wrongExplain:'"switchport trunk allowed vlan 30" (without add) replaces the list. "add" is critical to avoid accidentally removing existing VLANs.'},
+{id:32,domain:'Network Access',q:'Which statement about 802.11ac Wi-Fi is correct?',opts:['It operates only on the 2.4GHz band','It supports a maximum of 3 non-overlapping channels on 5GHz','It operates on the 5GHz band with wider channels','It is slower than 802.11n'],correct:2,multi:false,explanation:'<b>802.11ac</b> operates exclusively on the <b>5GHz band</b> with channel widths up to 160MHz, enabling multi-gigabit speeds. 5GHz has more non-overlapping channels than 2.4GHz. 802.11ax (Wi-Fi 6) operates on both bands.',wrongExplain:'802.11ac is 5GHz only — NOT 2.4GHz. It is significantly faster than 802.11n. 5GHz has many more than 3 non-overlapping channels.'},
+{id:33,domain:'Network Access',q:'Which protocol does a lightweight AP use to communicate with a WLC?',opts:['SSH','SNMP','CAPWAP','Telnet'],correct:2,multi:false,explanation:'<b>CAPWAP (Control And Provisioning of Wireless Access Points)</b> is the protocol lightweight APs use to communicate with the WLC. It uses UDP 5246 for control traffic and UDP 5247 for data traffic. All AP configuration is managed centrally by the WLC.',wrongExplain:'SSH is for device management. SNMP is for monitoring. Telnet is insecure management. CAPWAP is the specific protocol defined for AP-WLC communication.'},
+{id:34,domain:'Network Access',q:'An administrator needs to connect a PC to a switch for out-of-band management. Which cable type should be used?',opts:['Straight-through','Crossover','Console (rollover)','Fibre'],correct:2,multi:false,explanation:'A <b>console (rollover) cable</b> connects a PC\'s serial/USB port to the switch\'s console port for out-of-band management. It has reversed pin-outs compared to standard cables. Terminal emulator settings: 9600 baud, 8N1.',wrongExplain:'Straight-through and crossover are Ethernet cables for in-band connectivity. Fibre is for uplinks. Console access is specifically for CLI access when network is unavailable.'},
+{id:35,domain:'Network Access',q:'What is the function of the VLAN database on a Cisco switch?',opts:['Stores MAC-to-port mappings','Stores VLAN names and IDs for the switch','Maintains the spanning tree topology','Contains the ARP cache'],correct:1,multi:false,explanation:'The <b>VLAN database</b> stores the VLAN IDs (1-4094) and their names configured on the switch. It is separate from the running-config and stored in the vlan.dat file in flash. VLANs 1-1005 are stored here; extended VLANs require transparent mode.',wrongExplain:'MAC-to-port mappings are in the CAM table. STP topology is in the spanning tree database. ARP is a Layer 3 protocol stored in the ARP cache.'},
+{id:36,domain:'Network Access',q:'Which WPA2 security mode uses a centralised RADIUS server for authentication?',opts:['WPA2-Personal','WPA2-PSK','WPA2-Enterprise','WPA2-TKIP'],correct:2,multi:false,explanation:'<b>WPA2-Enterprise</b> uses 802.1X with a RADIUS server — each user has unique credentials (username/password or certificate). WPA2-Personal (PSK) uses a single shared passphrase. Enterprise is required in corporate environments where individual accountability is needed.',wrongExplain:'WPA2-Personal and WPA2-PSK are the same thing — both use a shared passphrase. TKIP is an encryption method (used in WPA, not WPA2 — WPA2 should use AES).'},
+{id:37,domain:'Network Access',q:'Which command sets a switch as the root bridge for VLAN 10 using the recommended method?',opts:['spanning-tree vlan 10 priority 0','spanning-tree vlan 10 root primary','spanning-tree mode root vlan 10','set spanning-tree vlan 10 root'],correct:1,multi:false,explanation:'"<b>spanning-tree vlan 10 root primary</b>" sets the priority to 24576 (or lower if needed to beat the current root). This is the recommended method over manually setting priority 0, as it intelligently sets the lowest priority needed to win.',wrongExplain:'Priority 0 works but is manual and rigid. "spanning-tree mode root" is not valid syntax. "set spanning-tree" is not IOS syntax.'},
+{id:38,domain:'Network Access',q:'What is the purpose of the Designated Port in STP?',opts:['The port closest to the root bridge on each switch','The only forwarding port on the root bridge','The best port on each segment for forwarding toward the root','The blocked port on a non-root switch'],correct:2,multi:false,explanation:'The <b>Designated Port</b> is the best port on each network segment (not each switch) for forwarding traffic toward the root bridge. Each LAN segment has exactly one designated port. The root bridge has all ports as designated.',wrongExplain:'Root Port is the port closest to root on each non-root switch. Blocked/Alternate port is the backup port that prevents loops.'},
+{id:39,domain:'Network Access',q:'A network has switches SW1, SW2, SW3 in a triangle. SW1 is the root bridge. The link between SW2 and SW3 is blocked. If SW1 fails, what happens?',opts:['The network loses connectivity permanently','SW2 or SW3 becomes the new root and the blocked port transitions to forwarding','All links remain blocked until SW1 recovers','The blocked port between SW2 and SW3 stays blocked'],correct:1,multi:false,explanation:'When the root bridge fails, STP <b>reconverges</b>. SW2 and SW3 exchange BPDUs to elect a new root (lowest Bridge ID wins). The previously blocked port transitions through Listening→Learning→Forwarding. With RSTP, this convergence takes less than 1 second.',wrongExplain:'STP is specifically designed to recover from failures. The blocked port will unblock to restore connectivity. The network does not permanently fail when root fails.'},
+{id:40,domain:'Network Access',q:'Which command enables LACP on a port channel interface?',opts:['channel-group 1 mode on','channel-group 1 mode active','channel-group 1 mode desirable','channel-group 1 mode auto'],correct:1,multi:false,explanation:'"<b>channel-group 1 mode active</b>" enables LACP in active mode (sends LACP PDUs). "passive" responds to LACP PDUs but doesn\'t initiate. "desirable" and "auto" are PAGP (Cisco-proprietary). "on" forces the channel without any negotiation protocol.',wrongExplain:'"on" creates a channel without LACP. "desirable" and "auto" use PAGP (Cisco proprietary, not LACP). The question asks for LACP specifically.'},
+
+// ── DOMAIN 3: IP Connectivity (25%) ──
+{id:41,domain:'IP Connectivity',q:'What is the administrative distance of a floating static route configured with AD 210 versus an OSPF route with AD 110?',opts:['OSPF is preferred because 110 < 210','Static is preferred because it was configured first','Both are installed in the routing table','Floating static is preferred because it is manually configured'],correct:0,multi:false,explanation:'Lower AD = more trusted. <b>OSPF (110) < Floating Static (210)</b>, so OSPF is preferred and installed. The floating static route only becomes active if OSPF fails — hence "floating". This is its entire purpose.',wrongExplain:'Configuration order does not determine preference. Only the best route (lowest AD) per destination is installed. Both are NOT installed — the lower AD wins.'},
+{id:42,domain:'IP Connectivity',q:'A router has these routes: O 10.10.10.0/24, O 10.10.0.0/16, S 0.0.0.0/0. A packet arrives for 10.10.10.5. Which route is used?',opts:['O 10.10.0.0/16 — closest match','O 10.10.10.0/24 — longest prefix match','S 0.0.0.0/0 — default route','The packet is dropped — ambiguous'],correct:1,multi:false,explanation:'<b>Longest prefix match</b>: the most specific route wins regardless of AD or metric. 10.10.10.0<b>/24</b> is more specific than 10.10.0.0/16. The router always picks the route with the most matching bits.',wrongExplain:'Longest prefix match overrides everything else — AD, metric, protocol. 10.10.10.0/24 matches 28 bits while /16 matches only 16 bits. /24 always wins.'},
+{id:43,domain:'IP Connectivity',q:'Which OSPF neighbor state indicates a full adjacency has been formed?',opts:['2-Way','ExStart','Loading','Full'],correct:3,multi:false,explanation:'<b>FULL</b> state means the adjacency is complete — both routers have identical LSDBs and are exchanging Hello packets to maintain the relationship. The path to FULL: Down→Init→2-Way→ExStart→Exchange→Loading→<b>Full</b>.',wrongExplain:'2-Way means the routers see each other\'s hellos but have not exchanged LSAs yet (on broadcast networks, DR/BDR neighbours stop at 2-Way). ExStart/Loading are transitional states during LSDB exchange.'},
+{id:44,domain:'IP Connectivity',q:'What command configures a router as an OSPF DR on a broadcast segment?',opts:['ospf priority 255','ip ospf priority 255','ip ospf dr-priority 255','router ospf priority 255'],correct:1,multi:false,explanation:'<b>ip ospf priority [0-255]</b> is the interface command. Priority 255 guarantees DR election (highest wins). Priority 0 makes the router ineligible. Default is 1. This is an interface-level command, not a router-level command.',wrongExplain:'"ospf priority" is not the correct IOS syntax. "ip ospf dr-priority" is not valid. "router ospf priority" is not valid — this must be configured on the interface.'},
+{id:45,domain:'IP Connectivity',q:'R1 is configured: ip route 192.168.2.0 255.255.255.0 10.0.0.2 210. What is this route\'s purpose?',opts:['Primary route to 192.168.2.0/24','Backup route active only when the primary (lower AD) fails','Load-balance partner with the primary route','Management route for monitoring traffic'],correct:1,multi:false,explanation:'AD 210 is a <b>floating static route</b>. If a dynamic route (e.g., OSPF AD=110) to the same destination exists, the floating static is not installed. Only when the dynamic route disappears (link failure) does the floating static activate.',wrongExplain:'210 > 110 (OSPF), so this route is never the primary when OSPF is running. Floating static routes do not load-balance — they are pure backup.'},
+{id:46,domain:'IP Connectivity',q:'What is the OSPF cost of a FastEthernet interface using the default reference bandwidth?',opts:['1','10','100','1000'],correct:1,multi:false,explanation:'Default OSPF cost = Reference BW / Interface BW = 100Mbps / 10Mbps = <b>10</b>. FastEthernet=10Mbps so cost=10. GigabitEthernet=1000Mbps so cost=1. Problem: any link faster than 100Mbps also gets cost=1, so use "auto-cost reference-bandwidth 10000" for modern networks.',wrongExplain:'FastEthernet is 10Mbps. Cost = 100/10 = 10. Gigabit Ethernet would be 100/1000 = 0.1, rounded up to 1. 10G, 40G, and 100G all get cost=1 without reference bandwidth adjustment.'},
+{id:47,domain:'IP Connectivity',q:'Which TWO conditions must be met for two OSPF routers to form a neighbour adjacency?',opts:['Same OSPF process ID','Same area ID','Same router-ID','Same hello and dead timers'],correct:[1,3],multi:true,explanation:'OSPF neighbours must have: <b>same area ID</b>, <b>matching hello/dead timers</b>, same subnet, same authentication, MTU match (in some implementations). Process IDs can differ. Router-IDs must be unique (not the same).',wrongExplain:'Process IDs can differ between routers forming an adjacency. Router-IDs must be UNIQUE (different) — same RIDs cause EXSTART failures.'},
+{id:48,domain:'IP Connectivity',q:'What is the purpose of the "ip helper-address" command?',opts:['Assigns a secondary IP address to an interface','Forwards UDP broadcast packets (like DHCP) to a unicast server address','Enables the interface as a DHCP server','Configures a static ARP entry'],correct:1,multi:false,explanation:'"<b>ip helper-address</b>" converts DHCP broadcast Discovers/Requests to unicast packets forwarded to the specified DHCP server. Configured on the <b>client-facing interface</b>, not the server-facing one. Without it, routers drop broadcast DHCP messages.',wrongExplain:'"ip address secondary" adds secondary IPs. DHCP server uses "ip dhcp pool". "arp" command creates static ARP entries.'},
+{id:49,domain:'IP Connectivity',q:'Which statement about HSRP is correct?',opts:['The active router uses its own MAC address','HSRP uses UDP for hello messages','The virtual MAC is 0000.0c07.acXX where XX is the group number in hex','Preempt is enabled by default'],correct:2,multi:false,explanation:'HSRP virtual MAC format: <b>0000.0c07.acXX</b> where XX is the group number in hex. This fixed MAC ensures ARP caches don\'t need to flush on failover. Preempt is NOT enabled by default — the standby router doesn\'t take over even if it has higher priority unless configured.',wrongExplain:'HSRP uses a virtual MAC, not the active router\'s real MAC. HSRP uses UDP 1985 for hellos. Preempt must be explicitly configured — without it, a higher-priority standby router stays standby.'},
+{id:50,domain:'IP Connectivity',q:'A host is configured with IP 192.168.1.50/24, gateway 192.168.1.1. It cannot reach 10.5.5.1. The router has a route to 10.5.5.0/24. What is the most likely cause?',opts:['The host\'s subnet mask is wrong','The router does not have a return route to 192.168.1.0/24','The host and gateway are in different subnets','ARP is not functioning'],correct:1,multi:false,explanation:'The packet reaches 10.5.5.1, but the <b>return packet from 10.5.5.1 back to 192.168.1.50 has no route</b>. The router at 10.5.5.x needs a route back to 192.168.1.0/24. This is the classic "asymmetric routing" or missing return route problem.',wrongExplain:'192.168.1.50 is in 192.168.1.0/24 with gateway .1 — the subnet is correct. If the host and gateway were in different subnets, the host couldn\'t even send the packet.'},
+{id:51,domain:'IP Connectivity',q:'What does the "show ip ospf neighbor" output "FULL/DR" mean?',opts:['The router is the DR and has full adjacency with its neighbour','The neighbour is the DR and this router has full adjacency with it','This router is in full loading state with the designated router','The DR has failed and is being replaced'],correct:1,multi:false,explanation:'Format: STATE/ROLE. <b>FULL/DR</b> means the adjacency is FULL (complete) and the <b>neighbour</b> (not this router) is the DR. FULL/- means point-to-point or BDR relationship. FULL/DROTHER means the neighbour is neither DR nor BDR.',wrongExplain:'The role shown (DR/BDR/DROTHER) is the NEIGHBOUR\'s role, not the local router\'s role. FULL is the adjacency state.'},
+{id:52,domain:'IP Connectivity',q:'Which command verifies that a static route was installed in the routing table?',opts:['show running-config | include route','show ip route','debug ip routing','show ip static route'],correct:1,multi:false,explanation:'"<b>show ip route</b>" shows the active routing table — only installed routes appear here. A static route in running-config may not be in the routing table if the next-hop is unreachable. Static routes with unreachable next-hops are not installed.',wrongExplain:'"show running-config" shows configured routes but not whether they are active. "debug ip routing" is for real-time changes. "show ip static route" shows configured static routes but not active ones.'},
+{id:53,domain:'IP Connectivity',q:'An OSPF neighbour is stuck in EXSTART state. What is the most likely cause?',opts:['Mismatched hello timers','Duplicate OSPF router IDs','Different OSPF process IDs','MTU mismatch on the link'],correct:[1,3],multi:true,explanation:'EXSTART failures are most commonly caused by: <b>duplicate router IDs</b> (two routers claiming the same RID) or <b>MTU mismatch</b> (DBD packets too large for the link). Both cause Master/Slave DBD negotiation to fail.',wrongExplain:'Mismatched hello timers cause the adjacency to not form at all (stuck in Init or not appearing). Different process IDs do not prevent adjacency.'},
+{id:54,domain:'IP Connectivity',q:'What is the purpose of HSRP preempt?',opts:['Forces the active router to give up the active role immediately','Allows a higher-priority standby router to take over when it comes back online','Prevents any router from becoming active during network instability','Enables load balancing between active and standby routers'],correct:1,multi:false,explanation:'<b>Preempt</b> allows a router with higher priority to <b>take over the active role</b> when it returns after a failure. Without preempt, the current active router keeps the role even if a higher-priority router comes back online.',wrongExplain:'Without preempt, a recovered high-priority router stays standby. Preempt has nothing to do with load balancing (use multiple HSRP groups for that).'},
+{id:55,domain:'IP Connectivity',q:'Which IPv6 transition mechanism encapsulates IPv6 packets within IPv4 packets to cross IPv4 networks?',opts:['Dual stack','6to4 tunnelling','NAT64','DS-Lite'],correct:1,multi:false,explanation:'<b>6to4 tunnelling</b> encapsulates IPv6 packets inside IPv4 to traverse IPv4 infrastructure. Dual stack means a device runs both IPv4 and IPv6 natively. NAT64 translates between IPv6 and IPv4. DS-Lite is a carrier-grade NAT technology.',wrongExplain:'Dual stack does not encapsulate — it runs both protocols in parallel. NAT64 translates protocols rather than encapsulating them.'},
+{id:56,domain:'IP Connectivity',q:'Which route type has the lowest administrative distance?',opts:['OSPF internal','Static route','Directly connected','EIGRP internal'],correct:2,multi:false,explanation:'AD values: <b>Connected=0</b>, Static=1, EIGRP Summary=5, eBGP=20, EIGRP=90, OSPF=110, RIP=120. A directly connected network has AD=0 because the router is physically attached — there is no doubt about its reachability.',wrongExplain:'Static=1, EIGRP=90, OSPF=110. Connected networks have AD=0 — the lowest possible value — because the router is physically attached.'},
+{id:57,domain:'IP Connectivity',q:'What does "no auto-summary" accomplish in a routing protocol configuration?',opts:['Disables automatic redistribution','Prevents the protocol from summarising networks at classful boundaries','Turns off load balancing','Removes all summary routes from the routing table'],correct:1,multi:false,explanation:'"<b>no auto-summary</b>" prevents protocols like RIP and EIGRP from automatically summarising subnets at classful (Class A/B/C) boundaries. Without this, EIGRP would advertise 10.0.0.0/8 instead of 10.1.1.0/24, causing routing black holes.',wrongExplain:'Auto-summary is about classful summarisation, not redistribution or load balancing. OSPF does not perform auto-summary — it always advertises subnets.'},
+{id:58,domain:'IP Connectivity',q:'A network uses OSPF area 0 with four routers. All routers must have identical LSDBs. What data structure contains all link-state information?',opts:['Routing table','Neighbour table','LSDB (Link State Database)','Topology table'],correct:2,multi:false,explanation:'The <b>LSDB (Link State Database)</b> contains all LSAs (Link State Advertisements) — every router\'s link information. All OSPF routers in an area share an identical LSDB and each runs Dijkstra\'s SPF algorithm to compute its own best paths.',wrongExplain:'The routing table is derived FROM the LSDB after SPF calculation. The neighbour table just lists adjacent routers. Topology table is an EIGRP term.'},
+{id:59,domain:'IP Connectivity',q:'Which command configures an OSPFv2 router ID of 1.1.1.1?',opts:['router-id 1.1.1.1 (in router ospf mode)','ospf router-id 1.1.1.1 (in global config)','ip ospf router-id 1.1.1.1 (in interface mode)','set router-id 1.1.1.1 (in router ospf mode)'],correct:0,multi:false,explanation:'In <b>router ospf mode</b>: "<b>router-id 1.1.1.1</b>". This overrides the automatic selection (highest loopback IP or highest physical IP). After changing router-ID, use "clear ip ospf process" to apply immediately.',wrongExplain:'"ospf router-id" is not valid global config syntax. "ip ospf" commands go on interfaces (for area, cost, priority). "set router-id" is not IOS syntax.'},
+{id:60,domain:'IP Connectivity',q:'R1 has interface Gi0/0: 10.0.0.1/30. R2 has Gi0/0: 10.0.0.2/30. OSPF is configured but neighbour relationship shows INIT. What is the most likely cause?',opts:['Different OSPF areas configured','Hello timer mismatch between R1 and R2','R1 and R2 are in different subnets','Duplicate router IDs'],correct:1,multi:false,explanation:'<b>INIT state</b> means R1 sees R2\'s hellos but R1\'s own router ID does not appear in R2\'s hello. The most common cause is a <b>hello/dead timer mismatch</b> — R2\'s timers are different so its hellos don\'t align with what R1 expects.',wrongExplain:'Different areas cause no neighbour to appear at all (not INIT). R1 and R2 are in the same /30 subnet. Duplicate router IDs cause EXSTART, not INIT.'},
+
+// ── DOMAIN 4: IP Services (10%) ──
+{id:61,domain:'IP Services',q:'What type of NAT maps one internal IP to one external IP on a permanent basis?',opts:['PAT (overload)','Dynamic NAT','Static NAT','Policy NAT'],correct:2,multi:false,explanation:'<b>Static NAT</b> creates a permanent one-to-one mapping between an inside local address and an inside global address. Used for servers that must be reachable from the internet with a fixed public IP. Dynamic NAT uses a pool. PAT maps many-to-one using port numbers.',wrongExplain:'PAT maps many internal IPs to one public IP using source ports. Dynamic NAT maps from a pool (not permanent). Both PAT and dynamic NAT change mappings over time.'},
+{id:62,domain:'IP Services',q:'Which SNMP version encrypts all packet contents including community strings?',opts:['SNMPv1','SNMPv2c','SNMPv3 noAuthNoPriv','SNMPv3 authPriv'],correct:3,multi:false,explanation:'<b>SNMPv3 authPriv</b> mode provides: Authentication (verifies sender using SHA/MD5) AND Privacy (encrypts entire packet using AES/DES). v1 and v2c use community strings in cleartext — never use in production.',wrongExplain:'SNMPv1 and v2c use cleartext community strings. SNMPv3 noAuthNoPriv has no authentication or encryption. SNMPv3 authNoPriv authenticates but does not encrypt.'},
+{id:63,domain:'IP Services',q:'A Cisco router NTP configuration shows "stratum 16". What does this indicate?',opts:['The router is a highly accurate primary time source','The router is synchronised to an atomic clock','The router is NOT synchronised to any NTP source','The router is 16 hops from the primary time source'],correct:2,multi:false,explanation:'<b>Stratum 16 = unsynchronised</b>. Stratum 0 = reference clock (GPS/atomic). Stratum 1 = directly connected to stratum 0. Each hop adds 1. Stratum 16 means the clock source is unknown or unavailable — this can break Kerberos authentication (5-minute tolerance).',wrongExplain:'Stratum 0 is atomic/GPS. Lower stratum = more accurate. Stratum 16 is the worst value indicating no valid synchronisation source, not 16 hops.'},
+{id:64,domain:'IP Services',q:'Which syslog severity level indicates normal but significant conditions?',opts:['0 - Emergency','3 - Error','5 - Notice','7 - Debug'],correct:2,multi:false,explanation:'<b>Severity 5 = Notice</b>: Normal but significant conditions. Severity levels 0-7: 0=Emergency, 1=Alert, 2=Critical, 3=Error, 4=Warning, 5=Notice, 6=Informational, 7=Debug. Lower number = higher severity. "Every Awful Crisis Ends, Warnings Need Investigation Daily."',wrongExplain:'0=Emergency (most severe). 3=Error (conditions to address). 7=Debug (most verbose, lowest severity). 5=Notice is correct for "normal but significant".'},
+{id:65,domain:'IP Services',q:'What is the purpose of a DHCP relay agent?',opts:['Provides redundant DHCP services','Forwards DHCP broadcasts to a unicast server on another subnet','Acts as a DHCP server for the local subnet','Assigns static IP addresses based on MAC address'],correct:1,multi:false,explanation:'A <b>DHCP relay agent</b> (configured with "ip helper-address") intercepts DHCP broadcasts and forwards them as unicast to a DHCP server on a different subnet. Without it, routers drop broadcast DHCP messages and clients on different subnets cannot get addresses.',wrongExplain:'Relay agents forward broadcasts — they don\'t provide redundancy or serve as the DHCP server themselves.'},
+{id:66,domain:'IP Services',q:'Which DNS record type maps a hostname to an IPv4 address?',opts:['AAAA','PTR','CNAME','A'],correct:3,multi:false,explanation:'<b>A record</b> maps hostname → IPv4 address. AAAA maps hostname → IPv6 address. PTR maps IP → hostname (reverse DNS). CNAME creates an alias pointing to another hostname. MX points to mail servers.',wrongExplain:'AAAA is for IPv6. PTR is for reverse lookups (IP → name). CNAME is an alias. A record is specifically IPv4 address mapping.'},
+{id:67,domain:'IP Services',q:'What is PAT and how does it differ from standard dynamic NAT?',opts:['PAT maps one public IP per private IP, dynamic NAT shares a pool','PAT multiplexes many private IPs to one public IP using port numbers, dynamic NAT uses a pool of public IPs','PAT only works with TCP, dynamic NAT works with all protocols','PAT is static, dynamic NAT changes with each session'],correct:1,multi:false,explanation:'<b>PAT (Port Address Translation)</b> maps many internal IPs to a single public IP using unique source port numbers per session — up to 65,535 concurrent sessions per public IP. Dynamic NAT assigns different public IPs from a pool — limited by pool size.',wrongExplain:'PAT works with TCP, UDP, and ICMP (using sequence numbers for ICMP). Dynamic NAT is dynamic not static. PAT uses ONE public IP for many hosts, not one per host.'},
+{id:68,domain:'IP Services',q:'Which command verifies NAT translations on a Cisco router?',opts:['show ip nat','show ip nat translations','show nat table','show ip translations'],correct:1,multi:false,explanation:'"<b>show ip nat translations</b>" displays the NAT translation table showing inside local (private), inside global (public), outside local, and outside global addresses with protocol and port numbers.',wrongExplain:'"show ip nat" alone is not complete syntax. "show nat table" and "show ip translations" are not valid IOS commands.'},
+{id:69,domain:'IP Services',q:'A router is configured with "ntp server 216.239.35.0". After configuration, "show ntp status" shows "Clock is unsynchronised". What is the most likely cause?',opts:['The NTP server is too far away','UDP port 123 is blocked by a firewall','The router\'s stratum is too high','NTP requires TCP not UDP'],correct:1,multi:false,explanation:'NTP uses <b>UDP port 123</b>. If a firewall blocks UDP 123 outbound or inbound, the router cannot synchronise. Other causes include incorrect server IP or server unreachable.',wrongExplain:'NTP distance (stratum) has no bearing on whether synchronisation can occur. NTP uses UDP 123 — not TCP. Stratum is a result, not a prerequisite.'},
+{id:70,domain:'IP Services',q:'Which QoS mechanism drops packets from a queue when the queue is full?',opts:['Shaping','Policing','Tail drop','WRED'],correct:2,multi:false,explanation:'<b>Tail drop</b> is the default behaviour — when a queue is full, all new arriving packets are dropped (dropped from the "tail"). <b>WRED (Weighted Random Early Detection)</b> proactively drops packets BEFORE the queue fills to avoid TCP synchronisation. Shaping delays (buffers). Policing drops excess at the interface.',wrongExplain:'Shaping buffers excess traffic (does not drop). Policing drops but at the INGRESS point based on rate, not queue fullness. WRED is smarter — it drops before the queue is full.'},
+
+// ── DOMAIN 5: Security Fundamentals (15%) ──
+{id:71,domain:'Security Fundamentals',q:'Which type of attack sends fake DHCP offers to redirect clients to use an attacker-controlled gateway?',opts:['ARP poisoning','DHCP spoofing','VLAN hopping','STP manipulation'],correct:1,multi:false,explanation:'<b>DHCP spoofing</b>: the attacker runs a rogue DHCP server that offers IPs with the attacker\'s address as the default gateway. All client traffic then passes through the attacker. <b>DHCP snooping</b> mitigates this by only allowing DHCP offers from trusted ports.',wrongExplain:'ARP poisoning maps wrong IP-to-MAC in ARP caches. VLAN hopping exploits trunk misconfiguration. STP manipulation involves sending BPDUs to control the topology.'},
+{id:72,domain:'Security Fundamentals',q:'Which security feature on a switch limits the number of MAC addresses allowed on a port?',opts:['DHCP snooping','Dynamic ARP Inspection','Port security','802.1X'],correct:2,multi:false,explanation:'<b>Port security</b> limits the number of MAC addresses learned on a port. Violation actions: shutdown (err-disable), restrict (drop + log), protect (drop silently). Configured with "switchport port-security maximum [n]".',wrongExplain:'DHCP snooping validates DHCP server packets. DAI validates ARP packets. 802.1X authenticates users/devices — it does not limit MAC addresses per port.'},
+{id:73,domain:'Security Fundamentals',q:'What does DAI (Dynamic ARP Inspection) use to validate ARP packets?',opts:['The routing table','The DHCP snooping binding table','The ARP cache','The MAC address table'],correct:1,multi:false,explanation:'DAI validates ARP packets by checking the IP-to-MAC mapping against the <b>DHCP snooping binding table</b>. If an ARP reply claims an IP-MAC pair not in the snooping table, DAI drops it. This is why DHCP snooping must be enabled BEFORE DAI.',wrongExplain:'The routing table is for Layer 3 forwarding. The ARP cache is what the attacker is trying to poison. The MAC table maps MACs to ports, not IPs to MACs.'},
+{id:74,domain:'Security Fundamentals',q:'An administrator wants to encrypt management traffic to a switch. Which protocol should replace Telnet?',opts:['HTTPS','SSH version 2','SNMPv3','TLS 1.3'],correct:1,multi:false,explanation:'<b>SSH version 2</b> replaces Telnet for encrypted CLI management. Telnet sends all data (including passwords) in cleartext. SSH encrypts the entire session. Requires: hostname, ip domain-name, RSA key (2048-bit), local user, ip ssh version 2.',wrongExplain:'HTTPS is for web-based management (not CLI). SNMPv3 is for monitoring not CLI access. TLS 1.3 is a protocol not a replacement for Telnet directly.'},
+{id:75,domain:'Security Fundamentals',q:'What is the difference between an IDS and an IPS?',opts:['IDS blocks traffic, IPS only alerts','IDS is inline, IPS monitors a copy of traffic','IPS is inline and can block traffic, IDS monitors passively and only alerts','Both block traffic but IDS is faster'],correct:2,multi:false,explanation:'<b>IPS (Intrusion Prevention System)</b> is deployed <b>inline</b> — all traffic passes through it and malicious traffic can be blocked in real-time. <b>IDS (Intrusion Detection System)</b> receives a copy of traffic (passive), detects threats, and generates alerts — it cannot block.',wrongExplain:'IDS does not block — it only detects and alerts. IPS is the inline device that can block. The descriptions in options A and B are backwards.'},
+{id:76,domain:'Security Fundamentals',q:'Which AAA protocol encrypts only the password portion of authentication packets?',opts:['TACACS+','RADIUS','Kerberos','LDAP'],correct:1,multi:false,explanation:'<b>RADIUS</b> encrypts only the password field. The username and accounting information are in cleartext. Uses UDP 1812 (auth) and 1813 (accounting). Used for network access (802.1X, VPN, Wi-Fi).',wrongExplain:'TACACS+ (TCP 49) encrypts the ENTIRE packet body — not just the password. This makes TACACS+ more secure for device management.'},
+{id:77,domain:'Security Fundamentals',q:'What is the purpose of the "service password-encryption" command?',opts:['Encrypts all passwords with AES-256','Encrypts clear-text passwords in the config with a weak reversible cipher (type 7)','Enables SSH encryption for VTY lines','Hashes all passwords with MD5'],correct:1,multi:false,explanation:'"<b>service password-encryption</b>" applies Cisco Type 7 encryption to plain-text passwords in the config (line passwords, enable password). It is easily reversible and provides minimal security — it only prevents shoulder-surfing. "enable secret" uses MD5 hash (Type 5) which is much stronger.',wrongExplain:'Type 7 is NOT AES-256 and is NOT secure — it can be decrypted in seconds online. It does not affect SSH. Enable secret uses MD5 hashing.'},
+{id:78,domain:'Security Fundamentals',q:'Which type of VPN allows individual users to connect to the corporate network from remote locations?',opts:['Site-to-site VPN','Remote access VPN','MPLS VPN','GRE tunnel'],correct:1,multi:false,explanation:'<b>Remote access VPN</b> allows individual users (employees at home, travelling) to securely connect to the corporate network using client software (e.g., Cisco AnyConnect). Site-to-site VPN connects networks (branch to HQ), not individual users.',wrongExplain:'Site-to-site connects networks (always-on). MPLS VPN is carrier-provided. GRE tunnels encapsulate without encryption (must be combined with IPsec for security).'},
+{id:79,domain:'Security Fundamentals',q:'What does the acronym CIA stand for in information security?',opts:['Control, Integrity, Authentication','Confidentiality, Integrity, Availability','Confidentiality, Identity, Authorisation','Compliance, Infrastructure, Access'],correct:1,multi:false,explanation:'The <b>CIA Triad</b>: <b>Confidentiality</b> (only authorised parties read data — encryption, ACLs), <b>Integrity</b> (data not altered without authorisation — hashing, digital signatures), <b>Availability</b> (systems accessible when needed — redundancy, backups).',wrongExplain:'The CIA triad is the foundational security model. Confidentiality, Integrity, Availability — each maps to specific security controls.'},
+{id:80,domain:'Security Fundamentals',q:'Which TWO are required to configure SSH on a Cisco router?',opts:['ip domain-name','enable password','crypto key generate rsa','ip ssh enable'],correct:[0,2],multi:true,explanation:'SSH requires: <b>hostname</b> (not default), <b>ip domain-name</b> (used to generate key name), <b>crypto key generate rsa</b> (generates the key pair), username (for login local), ip ssh version 2. "ip ssh enable" is not a valid command.',wrongExplain:'"enable password" is not required for SSH (use enable secret). "ip ssh enable" does not exist — SSH is enabled automatically when you generate the RSA key and configure VTY transport.'},
+{id:81,domain:'Security Fundamentals',q:'Which attack exploits a misconfigured native VLAN to send frames to a VLAN the attacker should not access?',opts:['MAC flooding','DHCP spoofing','VLAN hopping','STP manipulation'],correct:2,multi:false,explanation:'<b>VLAN hopping</b> exploits either: 1) switch spoofing (attacker negotiates a trunk), or 2) double tagging (attacker sends a double-tagged frame — outer tag matches native VLAN and is stripped, inner tag takes frame to target VLAN). Mitigation: set native VLAN to unused VLAN 999.',wrongExplain:'MAC flooding overflows the CAM table causing all frames to be flooded. DHCP spoofing intercepts address assignment. STP manipulation controls topology.'},
+{id:82,domain:'Security Fundamentals',q:'What is the effect of "switchport port-security violation restrict"?',opts:['Disables the port (err-disable)','Drops violating frames and increments violation counter, port stays up','Drops violating frames silently, no log','Allows the violation and logs it only'],correct:1,multi:false,explanation:'<b>Restrict mode</b>: drops violating frames, increments the security-violation counter, sends a syslog/SNMP trap, and the port remains up. Shutdown mode (default): err-disables the port. Protect mode: drops silently, no notification.',wrongExplain:'Shutdown=err-disable (default). Restrict=drop+log+port stays up. Protect=drop silently. "Restrict" specifically keeps the port operational while enforcing the policy.'},
+{id:83,domain:'Security Fundamentals',q:'Which protocol provides mutual authentication and encryption for WPA2-Enterprise networks?',opts:['TKIP','AES-CCMP','802.1X with EAP','PSK'],correct:2,multi:false,explanation:'<b>802.1X with EAP</b> provides the authentication framework for WPA2-Enterprise. The client (supplicant), AP (authenticator), and RADIUS server work together. EAP-TLS, PEAP, and EAP-TTLS are common EAP methods. AES-CCMP provides the encryption AFTER authentication.',wrongExplain:'TKIP is WPA encryption (not WPA2 — use AES). AES-CCMP is the encryption method but not the authentication mechanism. PSK is for Personal (not Enterprise) mode.'},
+{id:84,domain:'Security Fundamentals',q:'An access control list permits traffic from 192.168.10.0/24 but has no other permit rules. Traffic from 10.0.0.1 arrives. What happens?',opts:['It is forwarded by default','It is denied by the implicit deny at the end of every ACL','It is logged and forwarded','It triggers a syslog alert'],correct:1,multi:false,explanation:'Every Cisco ACL ends with an <b>implicit "deny any"</b> — invisible but always present. Any traffic not matched by an explicit permit rule is dropped. This is why "permit ip any any" is critical when you want to allow everything else after a specific deny.',wrongExplain:'There is NO default permit in ACLs. The implicit deny is silent — no log, no alert unless you add an explicit "deny any any log" rule.'},
+{id:85,domain:'Security Fundamentals',q:'What is split tunnelling in a VPN context?',opts:['A VPN where traffic is split between two tunnels for redundancy','A VPN configuration where only corporate-destined traffic uses the tunnel; internet traffic goes directly','A tunnelling protocol that splits packets for efficiency','A VPN where authentication is split between two servers'],correct:1,multi:false,explanation:'<b>Split tunnelling</b>: only traffic destined for corporate networks goes through the VPN tunnel — internet browsing goes directly through the user\'s ISP. Advantages: less bandwidth on corporate link, better performance. Disadvantage: IT loses visibility of user internet activity.',wrongExplain:'Split tunnelling is about traffic routing decisions, not redundancy or packet splitting. Full tunnelling sends ALL traffic through the VPN including internet browsing.'},
+
+// ── DOMAIN 6: Automation and Programmability (10%) ──
+{id:86,domain:'Automation',q:'Which HTTP method is used to CREATE a new resource in a REST API?',opts:['GET','PUT','POST','PATCH'],correct:2,multi:false,explanation:'REST HTTP verbs: <b>POST</b>=Create, GET=Read, PUT=Update/Replace (entire resource), PATCH=Update (partial), DELETE=Delete. POST creates a new resource at the collection endpoint. PUT replaces an existing resource at a specific ID.',wrongExplain:'GET only retrieves (no changes). PUT replaces an existing resource entirely. PATCH partially updates. POST is specifically for creating new resources.'},
+{id:87,domain:'Automation',q:'What is the key difference between Ansible and Terraform for network automation?',opts:['Ansible manages state, Terraform is stateless','Ansible is for configuration management, Terraform is for infrastructure provisioning','Terraform uses YAML, Ansible uses HCL','Ansible requires agents on devices, Terraform is agentless'],correct:1,multi:false,explanation:'<b>Ansible</b> = configuration management (configure existing devices — VLANs, OSPF, ACLs). <b>Terraform</b> = infrastructure provisioning (create/destroy infrastructure — spin up VMs, cloud resources). Both are used in network automation but for different purposes.',wrongExplain:'Terraform IS stateful (maintains a state file). Terraform uses HCL, Ansible uses YAML. BOTH are agentless for network devices (Ansible uses SSH/NETCONF, Terraform uses APIs).'},
+{id:88,domain:'Automation',q:'What does "idempotent" mean in the context of network automation?',opts:['The automation script runs only once','Running the same automation multiple times produces the same result — no unintended changes','The automation always makes changes on each run','The script can be reversed (rolled back) automatically'],correct:1,multi:false,explanation:'<b>Idempotency</b>: if the desired state already matches the current state, no changes are made. Running an Ansible playbook 10 times on an already-configured device changes nothing. This makes automation safe for compliance checking without risk of accidental disruption.',wrongExplain:'Idempotent does not mean "runs once" — it means repeated runs are safe. Non-idempotent scripts might add duplicate ACL rules or increment counters on each run.'},
+{id:89,domain:'Automation',q:'Which data format uses indentation and dashes to represent structured data, commonly used in Ansible playbooks?',opts:['JSON','XML','YAML','CSV'],correct:2,multi:false,explanation:'<b>YAML (Yet Another Markup Language)</b> uses indentation and dashes for lists — it is human-readable and used in Ansible playbooks. JSON uses braces/brackets. XML uses tags. All three can represent the same data; YAML is the most readable.',wrongExplain:'JSON uses {braces} and [brackets]. XML uses <tags>. CSV is flat tabular data. YAML uses indentation and is the most human-friendly for configuration.'},
+{id:90,domain:'Automation',q:'What is the purpose of the northbound API in an SDN controller?',opts:['Communicates with network devices using OpenFlow or NETCONF','Provides an interface for applications and orchestration platforms to interact with the controller','Manages the underlay physical network','Handles east-west communication between controllers'],correct:1,multi:false,explanation:'<b>Northbound API</b>: interface between the SDN controller and business applications/orchestration platforms (REST/JSON). <b>Southbound API</b>: interface between controller and network devices (OpenFlow, NETCONF, RESTCONF). Think: north=up toward apps, south=down toward hardware.',wrongExplain:'Communicating with network devices is the southbound API. Northbound faces upward toward applications. East-west is peer controller communication.'},
+{id:91,domain:'Automation',q:'Which protocol is used by NETCONF to transport configuration data?',opts:['HTTPS','SSH','Telnet','SNMP'],correct:1,multi:false,explanation:'<b>NETCONF</b> (Network Configuration Protocol) uses <b>SSH</b> as its transport (TCP port 830). It uses XML to encode configuration data and RPCs (Remote Procedure Calls) for operations like get-config, edit-config, and commit.',wrongExplain:'HTTPS is used by RESTCONF. Telnet is unencrypted and not used by NETCONF. SNMP is a separate management protocol predating NETCONF.'},
+{id:92,domain:'Automation',q:'What is the main advantage of controller-based networking over traditional distributed networking?',opts:['Lower hardware costs','Centralised visibility and consistent policy enforcement across all devices','Faster packet forwarding','No need for physical cabling'],correct:1,multi:false,explanation:'<b>Centralised control</b> gives the controller a global view of the entire network — enabling consistent policy, automated configuration, and rapid change propagation. Traditional distributed networks require configuring each device individually, leading to inconsistencies.',wrongExplain:'Controller-based networking does not reduce hardware costs (often increases them). Data plane forwarding stays on devices (same speed). Physical cabling is unchanged.'},
+{id:93,domain:'Automation',q:'In the context of REST APIs, which status code indicates a successful resource creation?',opts:['200 OK','201 Created','204 No Content','400 Bad Request'],correct:1,multi:false,explanation:'HTTP status codes: <b>200</b>=OK (success), <b>201</b>=Created (resource successfully created — response to POST), 204=No Content (success, no body), 400=Bad Request, 401=Unauthorised, 404=Not Found, 500=Server Error.',wrongExplain:'200 is for successful GET/PUT. 204 means success but no response body. 400 means the request was malformed. 201 specifically indicates a new resource was created.'},
+{id:94,domain:'Automation',q:'Which Cisco product provides a centralised GUI and API-driven controller for campus network management?',opts:['Cisco Prime Infrastructure','Cisco DNA Center','Cisco ISE','Cisco APIC'],correct:1,multi:false,explanation:'<b>Cisco DNA Center</b> (now Cisco Catalyst Center) provides centralised intent-based networking for campus — GUI, REST APIs, northbound APIs for orchestration, device provisioning, assurance, and policy. ISE = Identity/authentication. APIC = Data centre ACI controller.',wrongExplain:'Cisco Prime is legacy. ISE handles identity/AAA. APIC is for ACI (data centre, not campus). DNA Center is the current campus SDN controller.'},
+{id:95,domain:'Automation',q:'What does JSON stand for and what is it used for in network automation?',opts:['Java Standard Object Notation — for running Java on network devices','JavaScript Object Notation — a lightweight data format for API responses','JavaScript Operational Notation — for operational commands only','JSON Script Object Notation — for network scripting'],correct:1,multi:false,explanation:'<b>JSON (JavaScript Object Notation)</b> is a lightweight text-based data format using key-value pairs and arrays. REST APIs typically return JSON. It is language-agnostic despite the JavaScript name — Python, Go, Ruby all parse JSON natively.',wrongExplain:'JSON is not for running Java. It is used for data exchange (not just operational commands). It is a data format, not a scripting language.'},
+{id:96,domain:'Automation',q:'An Ansible playbook runs against 10 network devices. Three devices already have the correct configuration. What does Ansible do to those three devices?',opts:['Applies the configuration again to confirm','Skips making any changes and reports "ok"','Deletes and recreates the configuration','Reports an error for those devices'],correct:1,multi:false,explanation:'Ansible is <b>idempotent</b> — it checks current state against desired state. If they match, it reports "<b>ok</b>" and makes NO changes. Only devices needing changes show "changed". This is safe to run as a compliance check at any time.',wrongExplain:'Re-applying correct config would be non-idempotent. Ansible never deletes and recreates unless told to. Idempotency is a core principle.'},
+{id:97,domain:'Automation',q:'Which plane of network operation is responsible for making forwarding decisions based on the destination IP address?',opts:['Management plane','Control plane','Data plane','Policy plane'],correct:2,multi:false,explanation:'The <b>data plane (forwarding plane)</b> makes the actual packet forwarding decision at wire speed using ASICs — looking up the destination IP in the hardware FIB (Forwarding Information Base). Control plane builds the routing/switching tables. Management plane is for device configuration.',wrongExplain:'Control plane builds the tables (runs OSPF, STP, etc.) but does not forward packets. Management plane is for SSH/SNMP/NETCONF access to the device.'},
+{id:98,domain:'Automation',q:'Which statement about YANG is correct?',opts:['YANG is a query language for databases','YANG is a data modelling language used to define the structure of NETCONF/RESTCONF data','YANG is an automation framework like Ansible','YANG defines the physical network topology'],correct:1,multi:false,explanation:'<b>YANG (Yet Another Next Generation)</b> is a data modelling language (RFC 6020) that defines the structure, syntax, and semantics of data used by NETCONF and RESTCONF. Think of YANG as the schema — it defines what configuration data looks like.',wrongExplain:'YANG is not a database query language (SQL is). YANG is not an automation framework. YANG defines data models, not physical topology.'},
+{id:99,domain:'Automation',q:'What is the primary benefit of using Infrastructure as Code (IaC) for network management?',opts:['Eliminates the need for network engineers','Allows network configurations to be version-controlled, reviewed, and reproduced consistently','Automatically fixes all network problems','Replaces the need for monitoring tools'],correct:1,multi:false,explanation:'<b>Infrastructure as Code</b> treats network configs as code — stored in Git, reviewed via pull requests, tested in CI/CD pipelines, and deployed consistently. Benefits: reproducibility, version history, rollback capability, peer review, and automated testing.',wrongExplain:'IaC does not eliminate engineers — it makes them more effective. It does not auto-fix problems. Monitoring is still needed.'},
+{id:100,domain:'Automation',q:'Which TWO benefits does SDN provide compared to traditional networking?',opts:['Eliminates the data plane','Centralised management and programmatic control via APIs','Consistent policy enforcement across all devices','Requires no physical switches or routers'],correct:[1,2],multi:true,explanation:'SDN benefits: <b>centralised management</b> (global view, single point of control), <b>consistent policy</b> (push same policy everywhere instantly), <b>programmability</b> (APIs enable automation). SDN does NOT eliminate the data plane — physical hardware still forwards packets at wire speed.',wrongExplain:'SDN keeps the data plane on hardware — it only centralises the control plane. Physical hardware is still required. The main gains are in management consistency and automation.'},
+
+// ── REMAINING 20 QUESTIONS ──
+{id:101,domain:'IP Connectivity',q:'What is the wildcard mask equivalent of 255.255.255.0?',opts:['0.0.0.255','255.0.0.255','0.255.255.0','255.255.0.0'],correct:0,multi:false,explanation:'Wildcard mask = inverted subnet mask. 255.255.255.0 inverted = <b>0.0.0.255</b>. In OSPF "network" commands and ACLs, wildcard masks specify which bits must match (0=must match, 1=ignore). 0.0.0.255 means match the first 3 octets exactly, ignore the last.',wrongExplain:'Invert each bit: 255→0, 0→255. 255.255.255.0 inverted is 0.0.0.255.'},
+{id:102,domain:'Network Access',q:'A port shows "connected" but users report slow speeds. Show interfaces shows high input errors and late collisions. What is the cause?',opts:['Faulty cable','Duplex mismatch','MTU misconfiguration','STP blocking'],correct:1,multi:false,explanation:'<b>Late collisions + input errors = duplex mismatch</b>. One end is half-duplex, the other is full-duplex. The half-duplex side sends a jam signal after detecting a collision, but the full-duplex side has already sent more data, causing "late" collisions (after the first 64 bytes).',wrongExplain:'Faulty cables cause CRC errors but not specifically late collisions. MTU mismatches cause fragmentation. STP blocking would prevent connectivity entirely.'},
+{id:103,domain:'Security Fundamentals',q:'Which command creates a local user account with highest privilege on a Cisco device?',opts:['username admin password Admin123!','username admin privilege 15 secret Admin123!','user admin level 15 password Admin123!','create user admin privilege 15 Admin123!'],correct:1,multi:false,explanation:'"<b>username admin privilege 15 secret Admin123!</b>" creates a user with privilege 15 (highest) using hashed secret. "privilege 15" gives full enable access. "password" (not "secret") stores the password in reversible Type 7 — always use "secret".',wrongExplain:'"username admin password" uses Type 7 (weak). "user admin level 15" is not valid IOS syntax. "create user" is not valid IOS syntax.'},
+{id:104,domain:'IP Services',q:'Which protocol maps IP addresses to MAC addresses on a local network?',opts:['RARP','ARP','DNS','DHCP'],correct:1,multi:false,explanation:'<b>ARP (Address Resolution Protocol)</b> maps IPv4 addresses to MAC addresses. A device broadcasts "Who has IP X.X.X.X?" and the owner replies with its MAC. ARP cache stores these mappings temporarily.',wrongExplain:'RARP is the reverse (MAC→IP, obsolete). DNS maps hostnames to IPs. DHCP assigns IPs automatically.'},
+{id:105,domain:'Network Fundamentals',q:'How many usable host addresses are in a /29 subnet?',opts:['6','8','14','30'],correct:0,multi:false,explanation:'/29: 3 host bits → 2³=8 total addresses. <b>8 − 2 = 6 usable</b> (subtract network address and broadcast). Block size=8. Example: 192.168.1.0/29 = network .0, hosts .1-.6, broadcast .7.',wrongExplain:'8 is the total count including network and broadcast. 14 is /28. 30 is /27. Always subtract 2 from total.'},
+{id:106,domain:'IP Connectivity',q:'What is the purpose of a loopback interface on a router?',opts:['Provides a physical backup interface','A virtual always-up interface used for management and router-ID','Connects to the internet','Provides default gateway for VLANs'],correct:1,multi:false,explanation:'A <b>loopback interface</b> is virtual — it never goes down unless the router is off. Used as router-ID for OSPF/BGP (stable identifier), management access point, and source interface for traffic. Best practice: use loopback as OSPF router-ID.',wrongExplain:'Loopback is virtual, not physical. It does not provide internet connectivity. SVIs (VLAN interfaces) provide VLAN default gateways.'},
+{id:107,domain:'Security Fundamentals',q:'What does the "no ip http server" command accomplish?',opts:['Disables SSH access','Disables the HTTP web management interface','Disables DNS resolution','Disables CDP'],correct:1,multi:false,explanation:'"<b>no ip http server</b>" disables the HTTP (unencrypted port 80) management interface. "no ip http secure-server" disables HTTPS (port 443). Both should be disabled if web management is not needed — they represent attack surface.',wrongExplain:'SSH is controlled by VTY transport settings and crypto key. DNS uses "no ip domain-lookup". CDP uses "no cdp run".'},
+{id:108,domain:'Network Access',q:'Which VTP mode allows a switch to create, modify and delete VLANs and synchronise with VTP servers?',opts:['VTP Server','VTP Client','VTP Transparent','VTP Off'],correct:0,multi:false,explanation:'<b>VTP Server</b> mode: can create/modify/delete VLANs, advertises VLAN database to clients, synchronises from other servers. VTP Client receives but cannot modify. Transparent forwards VTP messages but maintains its own VLAN database. Off ignores VTP completely.',wrongExplain:'VTP Client cannot create or modify VLANs. Transparent mode switches maintain independent VLAN databases. VTP Off completely ignores VTP messages.'},
+{id:109,domain:'IP Services',q:'The QoS DSCP value for voice traffic (EF) is:',opts:['46','34','26','0'],correct:0,multi:false,explanation:'<b>EF (Expedited Forwarding) = DSCP 46</b> (binary 101110). Used for voice/VoIP — guaranteed low latency, low jitter. AF41=34 (video), CS3=24 (signalling), CS0=0 (best effort/default).',wrongExplain:'34=AF41 (video). 26=AF31. 0=CS0 (default/best effort). Voice=46 (EF).'},
+{id:110,domain:'Automation',q:'Which command shows the current management plane connections to a Cisco device?',opts:['show ip sockets','show users','show management','show control-plane'],correct:1,multi:false,explanation:'"<b>show users</b>" lists current active management sessions (console, VTY/SSH connections) including the source IP, line number, and idle time. "show line" shows line status.',wrongExplain:'"show ip sockets" shows open TCP/UDP sockets. "show management" and "show control-plane" are not standard verification commands for active sessions.'},
+{id:111,domain:'Network Fundamentals',q:'Which statement about IPv6 is correct?',opts:['IPv6 uses ARP for address resolution','IPv6 has a larger header than IPv4 proportionally','IPv6 uses NDP instead of ARP','IPv6 supports broadcast addresses'],correct:2,multi:false,explanation:'<b>IPv6 uses NDP (Neighbour Discovery Protocol)</b> instead of ARP for address-to-MAC resolution. NDP uses ICMPv6 multicast. IPv6 eliminated broadcast — replaced by targeted multicast. IPv6 header is simpler (no checksum, no fragmentation at routers).',wrongExplain:'IPv6 does NOT use ARP — NDP replaces it. IPv6 does NOT have broadcasts — multicast only. IPv6 header is simpler/fixed, though longer in absolute bytes.'},
+{id:112,domain:'IP Connectivity',q:'Which route is selected when a router has: O 10.0.0.0/8 [110/10], O 10.0.1.0/24 [110/5], S 10.0.1.0/24 [1/0] for destination 10.0.1.50?',opts:['O 10.0.0.0/8 — lowest metric','O 10.0.1.0/24 — OSPF route','S 10.0.1.0/24 — lower AD wins','The router load balances between them'],correct:2,multi:false,explanation:'<b>AD is compared first</b>, then prefix length. Static (AD=1) vs OSPF (AD=110) — Static wins. Only ONE route per destination is installed. Even though OSPF has a longer prefix (/24), the static route to the same /24 wins because AD 1 < AD 110.',wrongExplain:'Longest prefix match applies when comparing routes with DIFFERENT destinations. When two routes have the SAME destination and prefix, AD determines which is installed. AD is compared before metric.'},
+{id:113,domain:'Network Access',q:'A network administrator needs to allow only specific MAC addresses to access a switch port. Which feature provides this?',opts:['ACL on the interface','Port security with sticky MAC','DHCP snooping','802.1X with MAC bypass'],correct:1,multi:false,explanation:'<b>Port security with sticky MAC</b> learning dynamically learns and locks the first MAC address seen on a port (or you can manually configure specific MACs). Any other MAC triggers a violation. "sticky" saves learned MACs to running-config automatically.',wrongExplain:'ACLs filter Layer 3 traffic, not Layer 2 MAC access. DHCP snooping validates DHCP servers. 802.1X authenticates users, not MAC addresses specifically (though MAC bypass exists, it\'s a different feature).'},
+{id:114,domain:'Security Fundamentals',q:'What is the recommended minimum RSA key size for SSH version 2 on Cisco devices?',opts:['512 bits','1024 bits','2048 bits','4096 bits'],correct:2,multi:false,explanation:'<b>2048 bits</b> is the recommended minimum for SSH v2. 1024 bits is the minimum required by IOS for SSH v2 (1023 or less defaults to SSH v1). Best practice is 2048 or 4096 bits for production.',wrongExplain:'512 bits is insecure. 1024 bits is the minimum IOS requires but is considered weak today. 2048 is the recommended minimum. IOS will refuse to generate keys smaller than 768 bits for SSHv2.'},
+{id:115,domain:'IP Services',q:'A DHCP client sends a broadcast to renew its lease at 50% of lease time. What is this message called?',opts:['DHCP Discover','DHCP Request','DHCP Ack','DHCP Inform'],correct:1,multi:false,explanation:'At 50% of lease time, the client sends a <b>DHCP Request (unicast)</b> directly to the server that gave the lease. If no response, it broadcasts a DHCP Request at 87.5%. DHCP Discover is for initial address acquisition.',wrongExplain:'Discover is for initial acquisition (no IP yet, broadcast). Ack is the server\'s confirmation. Inform is used when a client has a static IP but wants other config (DNS, gateway).'},
+{id:116,domain:'Network Fundamentals',q:'What is the size of an IPv6 address?',opts:['32 bits','64 bits','128 bits','256 bits'],correct:2,multi:false,explanation:'IPv6 addresses are <b>128 bits</b>, written as 8 groups of 4 hex digits separated by colons (e.g., 2001:0db8:0000:0000:0000:0000:0000:0001). This provides ~340 undecillion addresses — essentially unlimited.',wrongExplain:'IPv4 is 32 bits. 64 bits is the prefix length of common IPv6 subnets. IPv6 is 128 bits total — four times longer than IPv4.'},
+{id:117,domain:'IP Connectivity',q:'Which OSPF network type is used for point-to-point serial interfaces?',opts:['Broadcast','Non-broadcast','Point-to-point','Point-to-multipoint'],correct:2,multi:false,explanation:'Serial interfaces default to <b>point-to-point</b> OSPF network type — no DR/BDR election needed (only 2 routers). Forms a FULL adjacency directly. Ethernet defaults to broadcast (DR/BDR elected). Frame relay uses non-broadcast or point-to-multipoint.',wrongExplain:'Broadcast type elects DR/BDR (Ethernet default). Non-broadcast requires manual neighbour config (Frame Relay). Point-to-point is the default for serial — no DR election.'},
+{id:118,domain:'Network Access',q:'Which IEEE standard defines the operation of 802.1Q VLAN trunking?',opts:['802.1D','802.1W','802.1Q','802.11'],correct:2,multi:false,explanation:'<b>IEEE 802.1Q</b> defines VLAN trunking — it specifies the 4-byte tag inserted into Ethernet frames (TPID + PCP + DEI + 12-bit VID). 802.1D = STP original. 802.1W = RSTP. 802.11 = Wi-Fi.',wrongExplain:'802.1D is the original Spanning Tree Protocol. 802.1W is RSTP (Rapid STP). 802.11 is the wireless LAN standard. 802.1Q is specifically for VLAN tagging.'},
+{id:119,domain:'IP Services',q:'What is the purpose of DNS TTL (Time to Live)?',opts:['Maximum number of DNS query retries','How long a DNS resolver caches the answer before querying again','Maximum number of hops for DNS queries','Encryption key validity period'],correct:1,multi:false,explanation:'DNS <b>TTL</b> specifies how long (in seconds) resolvers and clients cache the DNS record. Low TTL (60s) = fast propagation of changes. High TTL (86400s=24h) = reduced DNS load but slow updates. TTL is set by the authoritative nameserver.',wrongExplain:'TTL in DNS is purely a caching timer, not a hop count (that is IP TTL), retry count, or security parameter.'},
+{id:120,domain:'Automation',q:'Which protocol allows network devices to be configured using structured data in a model-driven approach, running over SSH?',opts:['SNMP','Telnet','NETCONF','CLI over SSH'],correct:2,multi:false,explanation:'<b>NETCONF (RFC 6241)</b> runs over SSH (port 830), uses XML for data encoding, and follows data models defined in YANG. It supports atomic transactions, candidate configurations, and rollback — far more capable than CLI scripting or SNMP.',wrongExplain:'SNMP is older and uses MIBs (not YANG). Telnet is unencrypted. CLI over SSH is scriptable but not model-driven. NETCONF is the modern standard for model-driven configuration.'},
+];
+
+/* ═══════════════════════════════════════════════
+   TROUBLESHOOTING SCENARIOS — 10 open-ended
+═══════════════════════════════════════════════ */
+const TS_SCENARIOS = [
+{
+  id:'ts01', title:'The Invisible Server',
+  difficulty:'Medium', diffClass:'diff-med',
+  symptom:'Ticket #4521: All users in the Finance department (192.168.10.0/24) report they cannot access the new ERP server at 10.0.0.100. Users in HR (192.168.20.0/24) can reach it fine. The server team says the server is up and responding to local pings. No config changes were made to the server.',
+  topo:'acl_server',
+  scoring:['Identified the fault domain (Layer 3 / access policy)','Found the root cause (ACL blocking Finance to server)','Applied the correct fix','Added verification commands to confirm resolution'],
+  correctRoot:'ACL on the router is blocking 192.168.10.0/24 from reaching 10.0.0.100 but not 192.168.20.0/24. The ACL has a deny rule that matches Finance traffic before any permit.',
+  devices:['R1'],
+  initialConfig:{acl_applied:true, acl_blocks_finance:true},
+},
+{
+  id:'ts02', title:'Half the Network is Unreachable',
+  difficulty:'Medium', diffClass:'diff-med',
+  symptom:'Ticket #5103: After a maintenance window last night, users in VLAN 20 cannot reach users in VLAN 10 or the internet. VLAN 20 users can reach each other. VLAN 10 users can reach everything. R1 shows both VLANs in show ip interface brief.',
+  topo:'intervlan',
+  scoring:['Ran correct diagnostic commands','Identified the missing ip routing command','Applied the fix','Verified inter-VLAN connectivity'],
+  correctRoot:'ip routing is missing on the Layer 3 switch. Without ip routing, the SVIs are up but the switch does not route between them.',
+  devices:['SW1'],
+  initialConfig:{svi10:true, svi20:true, ip_routing:false},
+},
+{
+  id:'ts03', title:'Wireless Users Getting Wrong IPs',
+  difficulty:'Medium', diffClass:'diff-med',
+  symptom:'Ticket #6812: Wireless users in the conference room are receiving IP addresses from the 10.10.10.0/24 range instead of the expected 192.168.50.0/24 range. Wired users get correct IPs. The conference room AP was recently moved from one switch port to another.',
+  topo:'dhcp_trouble',
+  scoring:['Identified rogue DHCP server as the cause','Found the untrusted port serving DHCP offers','Enabled DHCP snooping with correct trusted port','Verified with show ip dhcp snooping binding'],
+  correctRoot:'A rogue DHCP server is present on the untrusted switch port where the AP was moved. DHCP snooping is not enabled, so the rogue server can respond to DHCP requests.',
+  devices:['SW1'],
+  initialConfig:{snooping_global:false},
+},
+{
+  id:'ts04', title:'STP Reconvergence Loops',
+  difficulty:'Hard', diffClass:'diff-hard',
+  symptom:'Ticket #7234: The network is experiencing periodic broadcast storms every 30-40 seconds. Users report connectivity cycling — working briefly then dying. Network team sees high CPU on all switches. The storms started after a new IP phone was added to a patch panel port.',
+  topo:'stp_loop',
+  scoring:['Identified PortFast on trunk or missing BPDU Guard as cause','Ran spanning-tree diagnostics','Disabled PortFast on the trunk port OR enabled BPDU Guard','Verified STP is stable after fix'],
+  correctRoot:'PortFast is enabled globally (spanning-tree portfast default) but BPDU Guard was not enabled. The new IP phone port connects to another switch, introducing a BPDU which PortFast does not handle — causing a temporary loop every time STP reconverges.',
+  devices:['SW1'],
+  initialConfig:{portfast_global:true, bpduguard_global:false},
+},
+{
+  id:'ts05', title:'OSPF Neighbours Disappeared',
+  difficulty:'Hard', diffClass:'diff-hard',
+  symptom:'Ticket #8901: At 2am during a routine maintenance window, an engineer changed the OSPF hello timer on R1 from 10 to 5 seconds. At 2:15am, monitoring alerted that OSPF neighbours on R1 went from FULL to missing. No other changes were made. All links show up/up.',
+  topo:'ospf_p2p',
+  scoring:['Ran show ip ospf neighbor and identified missing neighbours','Ran show ip ospf interface to find timer mismatch','Fixed hello/dead timers on R1 to match neighbours (10/40)','Verified OSPF reconverged to FULL state'],
+  correctRoot:'OSPF hello/dead timers must match between neighbours. R1 was changed to hello=5/dead=20, but all neighbours still use hello=10/dead=40. The dead timer expired and adjacencies dropped.',
+  devices:['R1'],
+  initialConfig:{ospf_enabled:true, timer_wrong:true},
+},
+{
+  id:'ts06', title:'NAT Not Translating',
+  difficulty:'Medium', diffClass:'diff-med',
+  symptom:'Ticket #9145: Users on 192.168.1.0/24 cannot reach the internet. The ISP confirms R1\'s public IP (203.0.113.1) is active. "show ip nat translations" shows no entries. The router can ping 8.8.8.8 from its own interface.',
+  topo:'nat_pat',
+  scoring:['Ran show ip nat translations and show run','Identified missing ip nat inside/outside on interfaces','Applied ip nat inside and ip nat outside','Verified translations appear in show ip nat translations'],
+  correctRoot:'The NAT ACL and overload rule exist but neither interface has ip nat inside or ip nat outside configured. NAT requires both interface markings to know which direction to translate.',
+  devices:['R1'],
+  initialConfig:{nat_rule:true, nat_acl:true, nat_inside:false, nat_outside:false},
+},
+{
+  id:'ts07', title:'SSH Connection Refused',
+  difficulty:'Medium', diffClass:'diff-med',
+  symptom:'Ticket #10022: The NOC team reports they can no longer SSH to the core router R1. They get "connection refused". Telnet works but the security policy mandates SSH only. R1 was recently replaced with a new device and config was restored from backup.',
+  topo:'ssh_lab',
+  scoring:['Identified missing RSA key (not generated on new hardware)','Ran crypto key generate rsa modulus 2048','Verified ip ssh version 2 and VTY transport input ssh','Confirmed SSH connection succeeds'],
+  correctRoot:'The RSA key does not transfer with a config backup — it must be generated on each device. The restored config has all SSH settings but the crypto key generate rsa was not run on the new hardware.',
+  devices:['R1'],
+  initialConfig:{domain_name:true, ssh_v2:true, vty_ssh:true, local_user:true, rsa_key:false},
+},
+{
+  id:'ts08', title:'DHCP Pool Exhausted',
+  difficulty:'Hard', diffClass:'diff-hard',
+  symptom:'Ticket #11508: New employees are getting 169.254.x.x addresses and cannot connect. The DHCP pool has 50 addresses configured (.21-.70). However, show ip dhcp binding shows 47 entries including many from devices that were decommissioned 6 months ago. The lease is set to 365 days.',
+  topo:'dhcp_relay',
+  scoring:['Identified stale bindings from decommissioned devices','Cleared stale DHCP bindings (clear ip dhcp binding *)','Reduced lease time to 24 hours to prevent recurrence','Verified new devices receive addresses'],
+  correctRoot:'DHCP pool is exhausted because lease time is 365 days and decommissioned devices still hold bindings. The pool appears to have 50 slots but 47 are held by devices that no longer exist.',
+  devices:['R1'],
+  initialConfig:{dhcp_pool:true, excluded:true, pool_gw:true, long_lease:true},
+},
+{
+  id:'ts09', title:'VLANs Not Passing Between Switches',
+  difficulty:'Medium', diffClass:'diff-med',
+  symptom:'Ticket #12301: After a switch replacement, VLAN 10 and VLAN 20 users on SW2 cannot reach users of the same VLANs on SW1. The trunk link between SW1 and SW2 shows as up. CDP confirms the link is connected. SW1 has the correct VLAN database.',
+  topo:'trunk_mismatch',
+  scoring:['Ran show interfaces trunk on both switches','Identified that SW2 does not have VLANs 10,20 in its VLAN database','Created VLANs 10 and 20 on SW2','Verified traffic passes between switches'],
+  correctRoot:'The new SW2 does not have VLANs 10 and 20 in its VLAN database. A trunk allows VLANs but if the VLAN does not exist in the switch VLAN database, frames for that VLAN are dropped. VLANs must exist on both ends of a trunk.',
+  devices:['SW2'],
+  initialConfig:{trunk_g024:true, no_vlans:true},
+},
+{
+  id:'ts10', title:'Full Network Outage — Find Everything',
+  difficulty:'Expert', diffClass:'diff-expert',
+  symptom:'Ticket #CRITICAL: Complete network outage reported. Users cannot reach anything. Router R1 is up but "show ip route" shows only connected routes. Switches SW1 and SW2 show no VLAN traffic. This is a capstone scenario — multiple things are wrong. Diagnose and fix systematically.',
+  topo:'capstone',
+  scoring:['Identified OSPF not running (process missing or no networks advertised)','Identified VLAN 10 and 20 missing from SW1','Identified trunk not configured between SW1 and R1','Applied all fixes in correct sequence','Verified full connectivity restored'],
+  correctRoot:'Multiple issues: 1) OSPF process exists but no network statements configured. 2) VLANs 10 and 20 missing from SW1. 3) Trunk between SW1 and R1 is access mode. Fix in order: VLANs → trunk → OSPF.',
+  devices:['R1','SW1'],
+  initialConfig:{ospf_enabled:true, network_area0:false, no_vlans:true, trunk_wrong:true},
+},
+];
+
+/* ═══════════════════════════════════════════════
+   TOOLS ENGINE — State, Routing, All 6 Tools
+═══════════════════════════════════════════════ */
+
+let toolXP = parseInt(localStorage.getItem('netmind_tools_xp')||'0');
+let mistakeJournal = JSON.parse(localStorage.getItem('netmind_mistakes')||'[]');
+let examState = null;
+let diagState = null;
+let subnetStats = JSON.parse(localStorage.getItem('netmind_subnet')||'{"total":0,"correct":0,"times":[]}');
+let completedTS = new Set(JSON.parse(localStorage.getItem('netmind_ts_done')||'[]'));
+let tsDeviceStates = {};
+let tsCurrentDevice = null;
+let tsCurrentScenario = null;
+
+function saveData(){
+  localStorage.setItem('netmind_tools_xp', toolXP);
+  localStorage.setItem('netmind_mistakes', JSON.stringify(mistakeJournal));
+  localStorage.setItem('netmind_subnet', JSON.stringify(subnetStats));
+  localStorage.setItem('netmind_ts_done', JSON.stringify([...completedTS]));
+}
+
+function updateXP(){ document.getElementById('xp-badge').textContent = '⚡ '+toolXP+' XP'; }
+
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+function switchTool(id){
+  document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('tab-'+id).classList.add('active');
+}
+
+/* ══════════════════════════════════════════════
+   1. SUBNETTING DRILL
+══════════════════════════════════════════════ */
+let subnetLevel = 'easy';
+let subnetQuestion = null;
+let subnetTimer = null;
+let subnetSeconds = 0;
+let subnetTimerInterval = null;
+
+const SUBNET_LEVELS = {
+  easy:  { prefixes:[24,25,26], label:'Easy /24-/26' },
+  medium:{ prefixes:[25,26,27,28], label:'Medium /25-/28' },
+  hard:  { prefixes:[20,21,22,23,24,25,26,27,28,29], label:'Hard /20-/29' }
+};
+
+function ipToNum(ip){ return ip.split('.').reduce((acc,oct)=>acc*256+parseInt(oct),0); }
+function numToIp(n){ return [(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255].join('.'); }
+
+function generateSubnetQ(){
+  const level = SUBNET_LEVELS[subnetLevel];
+  const prefix = level.prefixes[Math.floor(Math.random()*level.prefixes.length)];
+  const hostBits = 32-prefix;
+  const blockSize = Math.pow(2,hostBits);
+  // Random IP in a valid subnet
+  const oct1 = [10,172,192][Math.floor(Math.random()*3)];
+  const oct2 = Math.floor(Math.random()*256);
+  const oct3 = Math.floor(Math.random()*256);
+  const rawHost = Math.floor(Math.random()*256);
+  const netOct4 = rawHost - (rawHost % blockSize);
+  const ip = `${oct1}.${oct2}.${oct3}.${rawHost}`;
+  const network = `${oct1}.${oct2}.${oct3}.${netOct4}`;
+  const broadcast = numToIp(ipToNum(network) + blockSize - 1);
+  const firstHost = numToIp(ipToNum(network) + 1);
+  const lastHost = numToIp(ipToNum(broadcast) - 1);
+  const nextNetwork = numToIp(ipToNum(network) + blockSize);
+  const usable = blockSize - 2;
+  return { ip, prefix, network, broadcast, firstHost, lastHost, nextNetwork, usable, blockSize };
+}
+
+function startSubnetDrill(){
+  subnetQuestion = generateSubnetQ();
+  subnetSeconds = 0;
+  clearInterval(subnetTimerInterval);
+  subnetTimerInterval = setInterval(()=>{
+    subnetSeconds++;
+    const el = document.getElementById('subnet-timer');
+    if(!el) return;
+    el.textContent = '⏱ '+subnetSeconds+'s';
+    el.className = 'sq-timer '+(subnetSeconds<8?'fast':subnetSeconds<15?'warn':'danger');
+  },1000);
+
+  document.getElementById('subnet-ip').textContent = subnetQuestion.ip+' /'+subnetQuestion.prefix;
+  document.getElementById('subnet-result').classList.remove('show');
+  ['network','broadcast','first','last','next'].forEach(f=>{
+    const el = document.getElementById('si-'+f);
+    if(el){ el.value=''; el.className='si-input'; }
+  });
+  document.getElementById('si-network').focus();
+}
+
+function checkSubnet(){
+  clearInterval(subnetTimerInterval);
+  const q = subnetQuestion;
+  if(!q) return;
+  const answers = {
+    network: document.getElementById('si-network').value.trim(),
+    broadcast: document.getElementById('si-broadcast').value.trim(),
+    first: document.getElementById('si-first').value.trim(),
+    last: document.getElementById('si-last').value.trim(),
+    next: document.getElementById('si-next').value.trim(),
+  };
+  const correct = { network:q.network, broadcast:q.broadcast, first:q.firstHost, last:q.lastHost, next:q.nextNetwork };
+  let allCorrect = true;
+  Object.entries(answers).forEach(([k,v])=>{
+    const el = document.getElementById('si-'+k);
+    const isRight = v===correct[k];
+    if(!isRight) allCorrect = false;
+    if(el) el.className = 'si-input '+(isRight?'correct':'wrong');
+  });
+
+  subnetStats.total++;
+  if(allCorrect) subnetStats.correct++;
+  subnetStats.times.push(subnetSeconds);
+  if(subnetStats.times.length>50) subnetStats.times.shift();
+
+  const avgTime = subnetStats.times.length>0
+    ? Math.round(subnetStats.times.reduce((a,b)=>a+b,0)/subnetStats.times.length) : 0;
+
+  document.getElementById('subnet-total').textContent = subnetStats.total;
+  document.getElementById('subnet-correct').textContent = subnetStats.correct;
+  document.getElementById('subnet-accuracy').textContent =
+    subnetStats.total>0 ? Math.round(subnetStats.correct/subnetStats.total*100)+'%' : '—';
+  document.getElementById('subnet-avgtime').textContent = avgTime+'s';
+
+  const resultEl = document.getElementById('subnet-result');
+  resultEl.innerHTML = Object.entries(correct).map(([k,v])=>{
+    const given = answers[k];
+    const right = given===v;
+    return `<div class="sr-row">
+      <span class="sr-field">${k.charAt(0).toUpperCase()+k.slice(1)}</span>
+      <span class="sr-val ${right?'correct':'wrong'}">${right?'✓ '+v:'✗ You: '+given+' → '+v}</span>
+    </div>`;
+  }).join('');
+  resultEl.classList.add('show');
+
+  if(allCorrect){
+    const bonus = subnetSeconds<=8?30:subnetSeconds<=15?15:5;
+    toolXP += bonus; updateXP(); saveData();
+    toast(`✓ Perfect! +${bonus} XP${subnetSeconds<=8?' (Speed bonus!)':''}`);
+  } else {
+    if(!allCorrect) addMistake('Subnetting', `${q.ip}/${q.prefix} — got network wrong`, 'Subnetting Drill', 'drill');
+    toast('Some answers wrong — see corrections above');
+  }
+  saveData();
+}
+
+/* ══════════════════════════════════════════════
+   2. MOCK EXAM
+══════════════════════════════════════════════ */
+let examQuestions = [];
+let examAnswers = {};
+let examFlagged = new Set();
+let examCurrentQ = 0;
+let examTimerInterval = null;
+let examSeconds = 90*60;
+let examSubmitted = false;
+
+function startExam(){
+  // Shuffle and weight by domain
+  examQuestions = [...EXAM_QUESTIONS].sort(()=>Math.random()-0.5);
+  examAnswers = {}; examFlagged.clear(); examCurrentQ = 0;
+  examSubmitted = false; examSeconds = 90*60;
+  document.getElementById('exam-setup').style.display='none';
+  document.getElementById('exam-active').style.display='block';
+  clearInterval(examTimerInterval);
+  examTimerInterval = setInterval(tickExamTimer,1000);
+  renderExamQuestion();
+  updateExamNav();
+}
+
+function tickExamTimer(){
+  examSeconds--;
+  const el = document.getElementById('exam-timer');
+  const m = Math.floor(examSeconds/60), s = examSeconds%60;
+  el.textContent = m+':'+(s<10?'0':'')+s;
+  el.className = 'exam-timer '+(examSeconds<600?'critical':examSeconds<1800?'warning':'');
+  if(examSeconds<=0){ clearInterval(examTimerInterval); submitExam(); }
+}
+
+function renderExamQuestion(){
+  const q = examQuestions[examCurrentQ];
+  const flagged = examFlagged.has(examCurrentQ);
+  const answered = examAnswers[examCurrentQ];
+
+  document.getElementById('exam-q-num').textContent = `Q${examCurrentQ+1} of ${examQuestions.length}`;
+  document.getElementById('exam-flag-btn').className = 'exam-flag'+(flagged?' flagged':'');
+  document.getElementById('exam-flag-btn').textContent = flagged ? '🚩 Flagged':'🚩 Flag';
+
+  const pct = Math.round(examCurrentQ/examQuestions.length*100);
+  document.getElementById('exam-prog-fill').style.width = pct+'%';
+
+  let html = `<div class="question-card">
+    <div><span class="q-domain">${q.domain}</span><span class="q-type">${q.multi?'PICK TWO':'SINGLE'}</span></div>
+    <div class="q-text">${q.q}</div>
+    <div class="q-options">`;
+  q.opts.forEach((opt,i)=>{
+    const sel = answered && (q.multi ? answered.includes(i) : answered===i);
+    html+=`<button class="q-opt${sel?' selected':''}" onclick="selectAnswer(${i})" id="qopt-${i}">
+      <span class="opt-letter">${'ABCD'[i]}</span>
+      <span class="opt-text">${opt}</span>
+    </button>`;
+  });
+  html+=`</div></div>`;
+  document.getElementById('exam-question').innerHTML=html;
+}
+
+function selectAnswer(optIdx){
+  if(examSubmitted) return;
+  const q = examQuestions[examCurrentQ];
+  if(q.multi){
+    let arr = examAnswers[examCurrentQ]||[];
+    if(arr.includes(optIdx)) arr=arr.filter(x=>x!==optIdx);
+    else if(arr.length<2) arr=[...arr,optIdx];
+    examAnswers[examCurrentQ]=arr;
+  } else {
+    examAnswers[examCurrentQ]=optIdx;
+  }
+  renderExamQuestion();
+  updateExamNav();
+}
+
+function flagQuestion(){
+  if(examFlagged.has(examCurrentQ)) examFlagged.delete(examCurrentQ);
+  else examFlagged.add(examCurrentQ);
+  renderExamQuestion();
+  updateExamNav();
+}
+
+function goToQuestion(idx){
+  examCurrentQ=idx;
+  renderExamQuestion();
+  updateExamNav();
+}
+
+function nextExamQ(){ if(examCurrentQ<examQuestions.length-1){ examCurrentQ++; renderExamQuestion(); updateExamNav(); } }
+function prevExamQ(){ if(examCurrentQ>0){ examCurrentQ--; renderExamQuestion(); updateExamNav(); } }
+
+function updateExamNav(){
+  const grid = document.getElementById('q-review-grid');
+  if(!grid) return;
+  grid.innerHTML = examQuestions.map((_,i)=>{
+    const ans = examAnswers[i]!==undefined && (Array.isArray(examAnswers[i])?examAnswers[i].length>0:true);
+    const flag = examFlagged.has(i);
+    const cur = i===examCurrentQ;
+    return `<button class="qrg-btn${cur?' current':flag?' flagged':ans?' answered':''}" onclick="goToQuestion(${i})">${i+1}</button>`;
+  }).join('');
+}
+
+function submitExam(){
+  clearInterval(examTimerInterval);
+  examSubmitted = true;
+  // Score
+  let totalCorrect=0;
+  const domainScores={};
+  examQuestions.forEach((q,i)=>{
+    if(!domainScores[q.domain]) domainScores[q.domain]={correct:0,total:0};
+    domainScores[q.domain].total++;
+    const ans = examAnswers[i];
+    let correct = false;
+    if(q.multi) correct = ans && q.correct.every(c=>ans.includes(c)) && ans.length===q.correct.length;
+    else correct = ans===q.correct;
+    if(correct){ totalCorrect++; domainScores[q.domain].correct++; }
+    else {
+      // Log to mistake journal
+      const concept = q.domain+': '+q.q.substring(0,50)+'...';
+      addMistake(concept, 'Exam question — chose wrong answer', q.domain, 'exam');
+    }
+  });
+  const pct = Math.round(totalCorrect/examQuestions.length*100);
+  const pass = pct>=80;
+  const xpEarned = pass ? 500 : Math.round(pct*3);
+  toolXP+=xpEarned; updateXP(); saveData();
+
+  // Show results
+  document.getElementById('exam-active').style.display='none';
+  document.getElementById('exam-results').style.display='block';
+  document.getElementById('result-score').textContent=pct+'%';
+  document.getElementById('result-score').className='result-score '+(pass?'result-pass':'result-fail');
+  document.getElementById('result-verdict').textContent=pass?'✓ PASS — Exam ready!':'✗ FAIL — Keep studying';
+  document.getElementById('result-summary').textContent=`${totalCorrect}/${examQuestions.length} correct · ${pass?'+'+xpEarned+' XP earned':'Keep drilling weak areas'}`;
+
+  const domBars = document.getElementById('domain-bars');
+  domBars.innerHTML = Object.entries(domainScores).map(([domain,s])=>{
+    const dpct=Math.round(s.correct/s.total*100);
+    const col=dpct>=80?'var(--lime)':dpct>=60?'var(--amber)':'var(--rose)';
+    return `<div class="domain-bar">
+      <span class="db-name">${domain}</span>
+      <div class="db-bar"><div class="db-fill" style="width:${dpct}%;background:${col}"></div></div>
+      <span class="db-pct" style="color:${col}">${dpct}%</span>
+    </div>`;
+  }).join('');
+  toast((pass?'🏆 Passed!':'📚 Keep studying — ')+pct+'% · +'+xpEarned+' XP');
+}
+
+function reviewExam(){
+  document.getElementById('exam-results').style.display='none';
+  document.getElementById('exam-review').style.display='block';
+  let html='';
+  examQuestions.forEach((q,i)=>{
+    const ans=examAnswers[i];
+    let userCorrect=false;
+    if(q.multi) userCorrect=ans&&q.correct.every(c=>ans.includes(c))&&ans.length===q.correct.length;
+    else userCorrect=ans===q.correct;
+    html+=`<div class="question-card" style="margin-bottom:14px;border-color:${userCorrect?'rgba(127,255,84,.2)':'rgba(255,64,96,.2)'}">
+      <div><span class="q-domain">${q.domain}</span><span style="margin-left:8px;font-size:11px;color:${userCorrect?'var(--lime)':'var(--rose)'}">${userCorrect?'✓ CORRECT':'✗ INCORRECT'}</span></div>
+      <div class="q-text">${q.q}</div>
+      <div class="q-options">`;
+    q.opts.forEach((opt,j)=>{
+      const wasSelected=Array.isArray(ans)?ans.includes(j):ans===j;
+      const isCorrect=Array.isArray(q.correct)?q.correct.includes(j):q.correct===j;
+      let cls='q-opt';
+      if(wasSelected&&isCorrect) cls+=' correct';
+      else if(wasSelected&&!isCorrect) cls+=' wrong';
+      else if(!wasSelected&&isCorrect) cls+=' reveal-correct';
+      html+=`<div class="${cls}"><span class="opt-letter">${'ABCD'[j]}</span><span class="opt-text">${opt}</span></div>`;
+    });
+    html+=`</div><div class="q-explanation show">${q.explanation}</div></div>`;
+  });
+  document.getElementById('exam-review-content').innerHTML=html;
+}
+
+/* ══════════════════════════════════════════════
+   3. MISTAKE JOURNAL
+══════════════════════════════════════════════ */
+let journalFilter = 'all';
+
+function addMistake(concept, detail, domain, type){
+  mistakeJournal.unshift({
+    id: Date.now(),
+    concept, detail, domain, type,
+    date: new Date().toLocaleDateString(),
+    count: 1,
+    reviewed: false
+  });
+  if(mistakeJournal.length>200) mistakeJournal.pop();
+  saveData();
+  renderJournal();
+}
+
+function renderJournal(){
+  const list = document.getElementById('journal-list');
+  if(!list) return;
+  let items = mistakeJournal;
+  if(journalFilter!=='all') items=items.filter(m=>m.type===journalFilter||m.domain===journalFilter);
+  if(items.length===0){
+    list.innerHTML=`<div class="journal-empty"><div class="journal-empty-icon">📓</div><div>No mistakes yet — keep going!</div><div style="font-size:11px;margin-top:6px;color:var(--mid)">Mistakes from Feynman, SR reviews, exams, and labs will appear here automatically.</div></div>`;
+    return;
+  }
+  const typeColors={'exam':'var(--rose)','lab':'var(--teal)','feynman':'var(--violet)','sr':'var(--blue)','drill':'var(--amber)'};
+  list.innerHTML=items.map(m=>`
+  <div class="mistake-item">
+    <div class="mi-header">
+      <span class="mi-icon">⚡</span>
+      <span class="mi-concept">${m.concept}</span>
+      <span class="mi-type badge" style="background:${typeColors[m.type]||'var(--mid)'}18;color:${typeColors[m.type]||'var(--mid)'};border:1px solid ${typeColors[m.type]||'var(--mid)'}33">${m.type||'manual'}</span>
+      <span class="mi-date">${m.date}</span>
+    </div>
+    <div class="mi-detail">${m.detail}</div>
+    <div class="mi-actions">
+      <button class="mi-btn drill" onclick="drillConcept('${m.concept.replace(/'/g,"\\'")}')">↗ Drill this</button>
+      <button class="mi-btn" onclick="removeMistake(${m.id})">✓ Resolved</button>
+    </div>
+  </div>`).join('');
+}
+
+function removeMistake(id){
+  mistakeJournal=mistakeJournal.filter(m=>m.id!==id);
+  saveData(); renderJournal(); toast('Marked as resolved ✓');
+}
+
+function drillConcept(concept){
+  toast('Opening '+concept+' in course...');
+  // In a real multi-file setup this would navigate; here we note it
+}
+
+function addManualMistake(){
+  const concept=document.getElementById('manual-concept').value.trim();
+  const detail=document.getElementById('manual-detail').value.trim();
+  const domain=document.getElementById('manual-domain').value;
+  if(!concept||!detail){ toast('Fill in concept and detail'); return; }
+  addMistake(concept,detail,domain,'manual');
+  document.getElementById('manual-concept').value='';
+  document.getElementById('manual-detail').value='';
+  toast('Mistake logged ✓');
+}
+
+/* ══════════════════════════════════════════════
+   4. CONCEPT DEPENDENCY MAP
+══════════════════════════════════════════════ */
+const DEP_NODES = [
+  {id:'binary',label:'Binary & Hex',x:80,y:80,domain:'Fundamentals'},
+  {id:'osi',label:'OSI Model',x:220,y:80,domain:'Fundamentals'},
+  {id:'tcp_udp',label:'TCP/UDP',x:360,y:80,domain:'Fundamentals'},
+  {id:'ipv4',label:'IPv4 Addressing',x:160,y:180,domain:'Fundamentals'},
+  {id:'subnetting',label:'Subnetting',x:300,y:180,domain:'Fundamentals'},
+  {id:'physical',label:'Physical Layer',x:80,y:280,domain:'Network Access'},
+  {id:'switching',label:'Switching/MAC',x:200,y:280,domain:'Network Access'},
+  {id:'vlans',label:'VLANs',x:340,y:280,domain:'Network Access'},
+  {id:'trunk',label:'802.1Q Trunking',x:460,y:280,domain:'Network Access'},
+  {id:'stp',label:'Spanning Tree',x:580,y:280,domain:'Network Access'},
+  {id:'etherchannel',label:'EtherChannel',x:700,y:280,domain:'Network Access'},
+  {id:'routing',label:'Routing Concepts',x:160,y:380,domain:'IP Connectivity'},
+  {id:'static',label:'Static Routing',x:280,y:380,domain:'IP Connectivity'},
+  {id:'ospf',label:'OSPF',x:420,y:380,domain:'IP Connectivity'},
+  {id:'hsrp',label:'HSRP',x:560,y:380,domain:'IP Connectivity'},
+  {id:'intervlan',label:'Inter-VLAN',x:680,y:380,domain:'IP Connectivity'},
+  {id:'dhcp',label:'DHCP',x:160,y:480,domain:'IP Services'},
+  {id:'nat',label:'NAT/PAT',x:280,y:480,domain:'IP Services'},
+  {id:'ntp',label:'NTP/SNMP',x:420,y:480,domain:'IP Services'},
+  {id:'qos',label:'QoS',x:540,y:480,domain:'IP Services'},
+  {id:'acl',label:'ACLs',x:160,y:580,domain:'Security'},
+  {id:'ssh',label:'SSH/AAA',x:300,y:580,domain:'Security'},
+  {id:'vpn',label:'VPN/IPsec',x:440,y:580,domain:'Security'},
+  {id:'l2sec',label:'L2 Security',x:580,y:580,domain:'Security'},
+  {id:'sdn',label:'SDN',x:300,y:680,domain:'Automation'},
+  {id:'ansible',label:'Ansible/Terraform',x:460,y:680,domain:'Automation'},
+  {id:'ipv6',label:'IPv6',x:620,y:680,domain:'Fundamentals'},
+];
+
+const DEP_EDGES = [
+  ['binary','ipv4'],['binary','subnetting'],['osi','tcp_udp'],['osi','switching'],
+  ['ipv4','subnetting'],['ipv4','routing'],['subnetting','routing'],['subnetting','ospf'],
+  ['physical','switching'],['switching','vlans'],['vlans','trunk'],['trunk','stp'],
+  ['trunk','etherchannel'],['vlans','intervlan'],['routing','static'],['routing','ospf'],
+  ['subnetting','static'],['ospf','hsrp'],['intervlan','routing'],['ipv4','dhcp'],
+  ['routing','nat'],['ipv4','nat'],['routing','ntp'],['routing','acl'],
+  ['switching','l2sec'],['vlans','l2sec'],['ssh','acl'],['tcp_udp','vpn'],
+  ['routing','vpn'],['acl','vpn'],['ospf','sdn'],['routing','sdn'],
+  ['sdn','ansible'],['ipv4','ipv6'],['routing','qos'],['tcp_udp','qos'],
+];
+
+const DOMAIN_COLORS = {
+  'Fundamentals':'#4b9eff','Network Access':'#00e8c8','IP Connectivity':'#9d6cff',
+  'IP Services':'#ff7a3d','Security':'#ff4060','Automation':'#7fff54'
+};
+
+function renderDepMap(){
+  const container = document.getElementById('depmap-svg');
+  if(!container) return;
+  const W=780, H=750;
+  // Get mastery from sessionStorage
+  let completed = new Set();
+  try{
+    const d=JSON.parse(sessionStorage.getItem('netmind')||'{}');
+    if(d.completed) d.completed.forEach(s=>completed.add(s));
+    if(d.feynmanPassed) d.feynmanPassed.forEach(s=>completed.add(s));
+  }catch(e){}
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;min-height:400px">
+    <rect width="${W}" height="${H}" fill="#030407"/>
+    <defs>
+      <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+        <path d="M0,0 L6,3 L0,6 Z" fill="#1e2236"/>
+      </marker>
+    </defs>`;
+
+  // Edges
+  DEP_EDGES.forEach(([a,b])=>{
+    const na=DEP_NODES.find(n=>n.id===a), nb=DEP_NODES.find(n=>n.id===b);
+    if(!na||!nb) return;
+    svg+=`<line x1="${na.x}" y1="${na.y}" x2="${nb.x}" y2="${nb.y}" stroke="#1e2236" stroke-width="1.5" marker-end="url(#arr)"/>`;
+  });
+
+  // Nodes
+  DEP_NODES.forEach(n=>{
+    const isComplete = completed.has(n.id);
+    const col = DOMAIN_COLORS[n.domain]||'#3d4566';
+    const fill = isComplete ? col : 'transparent';
+    const textCol = isComplete ? '#000' : col;
+    const r = 32;
+    svg+=`<g onclick="nodeClick('${n.id}')" style="cursor:pointer">
+      <circle cx="${n.x}" cy="${n.y}" r="${r}" fill="${fill}" fill-opacity="0.85" stroke="${col}" stroke-width="${isComplete?2:1.5}"/>
+      ${isComplete?`<text x="${n.x}" y="${n.y-8}" text-anchor="middle" fill="${textCol}" font-family="JetBrains Mono" font-size="7" font-weight="700">${n.label.split(' ').slice(0,2).join(' ')}</text><text x="${n.x}" y="${n.y+6}" text-anchor="middle" fill="${textCol}" font-family="JetBrains Mono" font-size="6">✓</text>`:
+      `<text x="${n.x}" y="${n.y-6}" text-anchor="middle" fill="${col}" font-family="JetBrains Mono" font-size="7">${n.label.split(' ')[0]}</text>
+       <text x="${n.x}" y="${n.y+6}" text-anchor="middle" fill="${col}88" font-family="JetBrains Mono" font-size="6">${n.label.split(' ').slice(1).join(' ')}</text>`}
+    </g>`;
+  });
+
+  svg+='</svg>';
+  container.innerHTML=svg;
+}
+
+function nodeClick(nodeId){
+  const n=DEP_NODES.find(x=>x.id===nodeId);
+  if(!n) return;
+  const prereqs=DEP_EDGES.filter(([,b])=>b===nodeId).map(([a])=>DEP_NODES.find(x=>x.id===a)?.label||a);
+  const unlocks=DEP_EDGES.filter(([a])=>a===nodeId).map(([,b])=>DEP_NODES.find(x=>x.id===b)?.label||b);
+  const tooltip=document.getElementById('node-tooltip');
+  tooltip.innerHTML=`<div class="nt-concept">${n.label}</div>
+    <div class="nt-status" style="color:${DOMAIN_COLORS[n.domain]}">${n.domain}</div>
+    ${prereqs.length?`<div style="margin-top:6px;font-size:10px;color:var(--mid)">Requires: ${prereqs.join(', ')}</div>`:''}
+    ${unlocks.length?`<div style="font-size:10px;color:var(--teal)">Unlocks: ${unlocks.join(', ')}</div>`:''}
+    <div style="margin-top:8px"><a href="netmind-story.html" style="color:var(--teal);font-size:10px">Open in Course →</a></div>`;
+  tooltip.classList.add('show');
+  setTimeout(()=>tooltip.classList.remove('show'),3000);
+}
+
+/* ══════════════════════════════════════════════
+   5. ADAPTIVE DIAGNOSTIC
+══════════════════════════════════════════════ */
+const DIAG_QUESTIONS = [
+  {domain:'Network Fundamentals',q:'What is the subnet mask for /28?',opts:['255.255.255.192','255.255.255.224','255.255.255.240','255.255.255.248'],correct:2},
+  {domain:'Network Access',q:'What STP port role is the best path toward the root bridge?',opts:['Designated','Root','Alternate','Backup'],correct:1},
+  {domain:'IP Connectivity',q:'Which OSPF state means full adjacency?',opts:['2-Way','ExStart','Loading','Full'],correct:3},
+  {domain:'IP Services',q:'Which protocol does DHCP relay use?',opts:['TCP 67','UDP 67/68','TCP 69','UDP 123'],correct:1},
+  {domain:'Security Fundamentals',q:'Which encrypts the entire packet: RADIUS or TACACS+?',opts:['RADIUS','TACACS+','Both','Neither'],correct:1},
+  {domain:'Automation',q:'Which HTTP verb creates a resource in REST?',opts:['GET','PUT','POST','DELETE'],correct:2},
+  {domain:'Network Fundamentals',q:'How many usable hosts in a /26?',opts:['30','62','126','254'],correct:1},
+  {domain:'Network Access',q:'What does BPDU Guard do?',opts:['Elects root bridge','Err-disables port on BPDU receive','Allows BPDU on trunk','Blocks all BPDUs'],correct:1},
+  {domain:'IP Connectivity',q:'Administrative distance of OSPF?',opts:['90','100','110','120'],correct:2},
+  {domain:'IP Services',q:'Which syslog severity is most critical?',opts:['7','5','3','0'],correct:3},
+  {domain:'Security Fundamentals',q:'What is the purpose of ip helper-address?',opts:['Adds secondary IP','Forwards DHCP broadcasts to unicast server','Enables NAT','Configures HSRP'],correct:1},
+  {domain:'Automation',q:'NETCONF runs over which protocol?',opts:['HTTPS','SSH','Telnet','SNMP'],correct:1},
+  {domain:'Network Fundamentals',q:'Default gateway of last resort is indicated by which route code?',opts:['O*','S*','C','D'],correct:1},
+  {domain:'Network Access',q:'What does "switchport mode trunk" configure?',opts:['Access VLAN','Trunk port carrying multiple VLANs','PortFast','Port security'],correct:1},
+  {domain:'IP Connectivity',q:'Which command verifies OSPF neighbours?',opts:['show ip route','show ip ospf neighbor','show ospf adjacency','show ip interface'],correct:1},
+  {domain:'IP Services',q:'PAT uses which to distinguish sessions?',opts:['Source IP','Source port','Destination IP','Protocol'],correct:1},
+  {domain:'Security Fundamentals',q:'Port security violation mode that err-disables the port:',opts:['Protect','Restrict','Shutdown','Block'],correct:2},
+  {domain:'Automation',q:'What does idempotent mean in automation?',opts:['Runs only once','Same result regardless of how many times run','Automatically rolls back','Requires manual approval'],correct:1},
+  {domain:'Network Fundamentals',q:'APIPA address range:',opts:['10.x.x.x','172.16.x.x','169.254.x.x','192.168.x.x'],correct:2},
+  {domain:'Network Access',q:'Which mode LACP combination never forms EtherChannel?',opts:['Active-Active','Active-Passive','Passive-Passive','On-On'],correct:2},
+];
+
+let diagCurrentQ = 0;
+let diagAnswers = {};
+const diagDomainConf = {};
+['Network Fundamentals','Network Access','IP Connectivity','IP Services','Security Fundamentals','Automation']
+  .forEach(d=>{ diagDomainConf[d]={confidence:50,correct:0,total:0}; });
+
+function startDiagnostic(){
+  diagCurrentQ=0; diagAnswers={};
+  Object.keys(diagDomainConf).forEach(d=>{ diagDomainConf[d]={confidence:50,correct:0,total:0}; });
+  document.getElementById('diag-intro').style.display='none';
+  document.getElementById('diag-active').style.display='block';
+  renderDiagQuestion();
+}
+
+function renderDiagQuestion(){
+  const q=DIAG_QUESTIONS[diagCurrentQ];
+  const total=DIAG_QUESTIONS.length;
+  document.getElementById('diag-step').textContent=`Question ${diagCurrentQ+1} of ${total}`;
+  document.getElementById('diag-prog-fill').style.width=Math.round(diagCurrentQ/total*100)+'%';
+  document.getElementById('diag-question-text').textContent=q.q;
+  document.getElementById('diag-domain-label').textContent=q.domain;
+  const opts=document.getElementById('diag-options');
+  opts.innerHTML=q.opts.map((opt,i)=>`
+    <button class="q-opt" onclick="answerDiag(${i})">
+      <span class="opt-letter">${'ABCD'[i]}</span>
+      <span class="opt-text">${opt}</span>
+    </button>`).join('');
+}
+
+function answerDiag(idx){
+  const q=DIAG_QUESTIONS[diagCurrentQ];
+  const correct=idx===q.correct;
+  const dom=diagDomainConf[q.domain];
+  dom.total++;
+  if(correct){ dom.correct++; dom.confidence=Math.min(100,dom.confidence+15); }
+  else { dom.confidence=Math.max(0,dom.confidence-20);
+    addMistake(q.domain+': '+q.q.substring(0,40)+'...','Diagnostic — chose wrong answer',q.domain,'diagnostic');
+  }
+  diagAnswers[diagCurrentQ]=idx;
+  diagCurrentQ++;
+  if(diagCurrentQ>=DIAG_QUESTIONS.length) showDiagResults();
+  else renderDiagQuestion();
+}
+
+function showDiagResults(){
+  document.getElementById('diag-active').style.display='none';
+  document.getElementById('diag-results').style.display='block';
+  // Sort domains by confidence ascending
+  const sorted=Object.entries(diagDomainConf).sort((a,b)=>a[1].confidence-b[1].confidence);
+  const domBars=document.getElementById('diag-domain-bars');
+  domBars.innerHTML=sorted.map(([d,s])=>{
+    const col=s.confidence>=70?'var(--lime)':s.confidence>=40?'var(--amber)':'var(--rose)';
+    const status=s.confidence>=70?'Strong':'Needs work';
+    return `<div class="dd-item">
+      <div class="dd-name">${d}</div>
+      <div class="dd-bar"><div class="dd-fill" style="width:${s.confidence}%;background:${col}"></div></div>
+      <div class="dd-conf" style="color:${col}">${s.confidence}% confidence · ${status}</div>
+    </div>`;
+  }).join('');
+  // Study plan
+  const plan=document.getElementById('study-plan');
+  plan.innerHTML=sorted.map(([d,s],i)=>{
+    const cls=s.confidence<40?'critical':s.confidence<70?'weak':'ok';
+    const action=cls==='critical'?'🔴 Start here — review all labs and concepts':cls==='weak'?'🟡 Review weak spots, do practice questions':'🟢 Strong — use for spaced repetition only';
+    const priority=i+1;
+    return `<div class="sp-item ${cls}">
+      <div class="sp-domain">#${priority} ${d}</div>
+      <div class="sp-action">${action}</div>
+    </div>`;
+  }).join('');
+  const weakest=sorted[0][0];
+  document.getElementById('diag-recommendation').textContent=`Start with ${weakest} — your weakest area. Focus labs 1-5 and the exam questions for that domain.`;
+  toolXP+=50; updateXP(); saveData();
+  toast('Diagnostic complete! +50 XP — study plan generated');
+}
+
+/* ══════════════════════════════════════════════
+   6. OPEN-ENDED TROUBLESHOOTING (reuses IOS engine)
+══════════════════════════════════════════════ */
+const TOPOLOGIES_TS = {
+  acl_server:`<svg viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="130" fill="#030407"/><circle cx="120" cy="55" r="26" fill="#9d6cff10" stroke="#9d6cff" stroke-width="1.5"/><text x="120" y="59" text-anchor="middle" fill="#9d6cff" font-family="JetBrains Mono" font-size="9" font-weight="700">R1</text><rect x="8" y="96" width="70" height="26" rx="4" fill="#ff406010" stroke="#ff406044"/><text x="43" y="112" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="8">Finance</text><rect x="162" y="96" width="70" height="26" rx="4" fill="#7fff5410" stroke="#7fff5444"/><text x="197" y="112" text-anchor="middle" fill="#7fff54" font-family="JetBrains Mono" font-size="8">Server</text><line x1="94" y1="74" x2="43" y2="96" stroke="#ff406044" stroke-width="1.5"/><line x1="146" y1="74" x2="197" y2="96" stroke="#7fff5444" stroke-width="1.5"/></svg>`,
+  intervlan:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="140" fill="#030407"/><rect x="85" y="20" width="70" height="34" rx="6" fill="#00e8c814" stroke="#00e8c8" stroke-width="1.5"/><text x="120" y="41" text-anchor="middle" fill="#00e8c8" font-family="JetBrains Mono" font-size="9" font-weight="700">L3 SW1</text><rect x="10" y="85" width="70" height="28" rx="4" fill="#4b9eff10" stroke="#4b9eff44"/><text x="45" y="102" text-anchor="middle" fill="#4b9eff" font-family="JetBrains Mono" font-size="8">VLAN 10</text><rect x="160" y="85" width="70" height="28" rx="4" fill="#ffb83010" stroke="#ffb83044"/><text x="195" y="102" text-anchor="middle" fill="#ffb830" font-family="JetBrains Mono" font-size="8">VLAN 20</text><line x1="105" y1="54" x2="45" y2="85" stroke="#4b9eff44" stroke-width="1.5"/><line x1="135" y1="54" x2="195" y2="85" stroke="#ffb83044" stroke-width="1.5"/></svg>`,
+  dhcp_trouble:`<svg viewBox="0 0 240 120" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="120" fill="#030407"/><circle cx="120" cy="50" r="28" fill="#ff7a3d14" stroke="#ff7a3d" stroke-width="1.5"/><text x="120" y="54" text-anchor="middle" fill="#ff7a3d" font-family="JetBrains Mono" font-size="9" font-weight="700">R1</text><rect x="10" y="90" width="65" height="22" rx="4" fill="#ff406010" stroke="#ff406044"/><text x="42" y="104" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="8">169.254.x!</text><line x1="92" y1="70" x2="42" y2="90" stroke="#ff406044" stroke-width="1.5" stroke-dasharray="4,3"/></svg>`,
+  stp_loop:`<svg viewBox="0 0 240 130" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="130" fill="#030407"/><rect x="80" y="15" width="80" height="32" rx="6" fill="#ff406014" stroke="#ff4060" stroke-width="2"/><text x="120" y="35" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="9" font-weight="700">SW1 STORM!</text><rect x="15" y="78" width="60" height="26" rx="5" fill="#ff406010" stroke="#ff406033"/><text x="45" y="95" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="8">SW2</text><rect x="165" y="78" width="60" height="26" rx="5" fill="#ff406010" stroke="#ff406033"/><text x="195" y="95" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="8">SW3</text><line x1="96" y1="47" x2="45" y2="78" stroke="#ff4060" stroke-width="1.5"/><line x1="144" y1="47" x2="195" y2="78" stroke="#ff4060" stroke-width="1.5"/></svg>`,
+  ospf_p2p:`<svg viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="100" fill="#030407"/><circle cx="65" cy="50" r="26" fill="#9d6cff10" stroke="#9d6cff" stroke-width="1.5"/><text x="65" y="54" text-anchor="middle" fill="#9d6cff" font-family="JetBrains Mono" font-size="10" font-weight="700">R1</text><circle cx="175" cy="50" r="26" fill="#ff406010" stroke="#ff4060" stroke-width="1.5"/><text x="175" y="54" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="10" font-weight="700">R2</text><line x1="91" y1="50" x2="149" y2="50" stroke="#ff4060" stroke-width="2" stroke-dasharray="5,3"/><text x="120" y="42" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="7">INIT/missing</text></svg>`,
+  nat_pat:`<svg viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="100" fill="#030407"/><rect x="5" y="35" width="60" height="30" rx="5" fill="#00e8c808" stroke="#00e8c822"/><text x="35" y="53" text-anchor="middle" fill="#00e8c8" font-family="JetBrains Mono" font-size="7">192.168.x</text><circle cx="120" cy="50" r="24" fill="#9d6cff10" stroke="#9d6cff" stroke-width="1.5"/><text x="120" y="54" text-anchor="middle" fill="#9d6cff" font-family="JetBrains Mono" font-size="9" font-weight="700">R1</text><rect x="175" y="35" width="60" height="30" rx="5" fill="#ff406008" stroke="#ff406022"/><text x="205" y="53" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="7">203.0.113</text><line x1="65" y1="50" x2="96" y2="50" stroke="#00e8c844" stroke-width="1.5"/><line x1="144" y1="50" x2="175" y2="50" stroke="#ff406044" stroke-width="1.5"/></svg>`,
+  dhcp_relay:`<svg viewBox="0 0 240 110" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="110" fill="#030407"/><circle cx="120" cy="50" r="26" fill="#ff7a3d14" stroke="#ff7a3d" stroke-width="1.5"/><text x="120" y="54" text-anchor="middle" fill="#ff7a3d" font-family="JetBrains Mono" font-size="9" font-weight="700">R1</text><rect x="8" y="90" width="65" height="18" rx="4" fill="#4b9eff10" stroke="#4b9eff44"/><text x="40" y="103" text-anchor="middle" fill="#4b9eff" font-family="JetBrains Mono" font-size="7">Wireless</text><line x1="96" y1="68" x2="40" y2="90" stroke="#4b9eff44" stroke-width="1.5"/></svg>`,
+  ssh_lab:`<svg viewBox="0 0 240 100" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="100" fill="#030407"/><circle cx="120" cy="50" r="28" fill="#9d6cff10" stroke="#9d6cff" stroke-width="1.5"/><text x="120" y="46" text-anchor="middle" fill="#9d6cff" font-family="JetBrains Mono" font-size="9" font-weight="700">R1</text><text x="120" y="60" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="7">SSH refused!</text></svg>`,
+  capstone:`<svg viewBox="0 0 240 140" xmlns="http://www.w3.org/2000/svg" style="width:100%"><rect width="240" height="140" fill="#030407"/><circle cx="120" cy="40" r="24" fill="#9d6cff10" stroke="#9d6cff" stroke-width="1.5"/><text x="120" y="44" text-anchor="middle" fill="#9d6cff" font-family="JetBrains Mono" font-size="9" font-weight="700">R1</text><rect x="80" y="80" width="80" height="32" rx="6" fill="#00e8c814" stroke="#00e8c8" stroke-width="1.5"/><text x="120" y="100" text-anchor="middle" fill="#00e8c8" font-family="JetBrains Mono" font-size="9" font-weight="700">SW1</text><line x1="120" y1="64" x2="120" y2="80" stroke="#3d4566" stroke-width="1.5"/><text x="120" y="128" text-anchor="middle" fill="#ff4060" font-family="JetBrains Mono" font-size="7">Multiple issues present</text></svg>`,
+};
+
+function loadTSScenario(idx){
+  const sc=TS_SCENARIOS[idx];
+  tsCurrentScenario=idx;
+  // Init device state
+  tsDeviceStates={};
+  sc.devices.forEach(dev=>{
+    tsDeviceStates[dev]={ mode:'user', hostname:dev, config:{...sc.initialConfig}, interfaces:{} };
+  });
+  tsCurrentDevice=sc.devices[0];
+
+  document.getElementById('ts-scenario-grid').style.display='none';
+  const active=document.getElementById('ts-active');
+  active.classList.add('show');
+
+  document.getElementById('ts-symptom-text').textContent=sc.symptom;
+  document.getElementById('ts-topo-svg').innerHTML=TOPOLOGIES_TS[sc.topo]||'';
+
+  // Score items
+  document.getElementById('ts-score-items').innerHTML=sc.scoring.map((s,i)=>`
+    <div class="ts-score-item" id="ts-score-${i}">
+      <div class="ts-score-check" id="ts-check-${i}"></div>
+      <span class="ts-score-label">${s}</span>
+    </div>`).join('');
+
+  // Device tabs
+  document.getElementById('ts-dev-tabs').innerHTML=sc.devices.map(d=>
+    `<button class="dev-tab ${d===tsCurrentDevice?'active':''}" onclick="switchTSDevice('${d}')">${d}</button>`).join('');
+
+  clearTSTerminal();
+  const tp=document.getElementById('ts-term-out');
+  const msg=(text,cls)=>{ const d=document.createElement('div'); d.className=cls; d.textContent=text; tp.appendChild(d); };
+  msg('═══════════════════════════════════════','t-cmt');
+  msg('  SCENARIO: '+sc.title,'t-cmt');
+  msg('  No task list. Diagnose from the symptom.','t-cmt');
+  msg('  Use show commands to find the problem.','t-cmt');
+  msg('═══════════════════════════════════════','t-cmt');
+  msg('','t-out');
+  updateTSPrompt();
+}
+
+function switchTSDevice(dev){
+  tsCurrentDevice=dev;
+  document.querySelectorAll('#ts-dev-tabs .dev-tab').forEach(t=>t.classList.toggle('active',t.textContent===dev));
+  clearTSTerminal();
+  addTSLine('═══ Switched to '+dev+' ═══','t-sys');
+  updateTSPrompt();
+}
+
+function clearTSTerminal(){ document.getElementById('ts-term-out').innerHTML=''; }
+function addTSLine(text,cls){ const out=document.getElementById('ts-term-out'); const d=document.createElement('div'); d.className=cls; d.textContent=text; out.appendChild(d); out.scrollTop=out.scrollHeight; }
+function updateTSPrompt(){ const s=tsDeviceStates[tsCurrentDevice]; const h=s?s.hostname:tsCurrentDevice; document.getElementById('ts-t-prompt').textContent=h+(s&&s.mode==='enable'?'#':s&&s.mode==='config'?'(config)#':'>'); }
+
+document.addEventListener('DOMContentLoaded',()=>{
+  const tsInput=document.getElementById('ts-t-input');
+  if(tsInput) tsInput.addEventListener('keydown',e=>{
+    if(e.key!=='Enter') return;
+    const cmd=tsInput.value.trim(); tsInput.value='';
+    if(!cmd||!tsDeviceStates[tsCurrentDevice]) return;
+    addTSLine(getTSPrompt()+' '+cmd,'t-cmd');
+    processTSCommand(cmd);
+    updateTSPrompt();
+    checkTSScoring();
+  });
+});
+
+function getTSPrompt(){
+  const s=tsDeviceStates[tsCurrentDevice];
+  const h=s?s.hostname:tsCurrentDevice;
+  const m={'user':'>','enable':'#','config':'(config)#','interface':'(config-if)#','router':'(config-router)#','line':'(config-line)#','vlan':'(config-vlan)#','dhcp':'(dhcp-config)#'};
+  return h+(m[s?.mode]||'#');
+}
+
+function processTSCommand(cmd){
+  const s=tsDeviceStates[tsCurrentDevice];
+  if(!s) return;
+  // Reuse the same command processor logic from labs
+  const lo=cmd.toLowerCase().trim();
+  const p=lo.split(/\s+/);
+
+  if(s.mode==='user'){
+    if(p[0]==='enable'){ s.mode='enable'; return; }
+    addTSLine('% Unknown command','t-err'); return;
+  }
+  if(s.mode==='enable'){
+    if(p[0]==='configure'&&(p[1]==='terminal'||p[1]==='t')){ s.mode='config'; addTSLine('Enter configuration commands, one per line.','t-sys'); return; }
+    if(p[0]==='show'){ handleTSShow(p,s); return; }
+    if(p[0]==='clear'){ addTSLine('% Cleared','t-ok'); if(lo.includes('dhcp binding')) s.config.dhcp_cleared=true; return; }
+    addTSLine('% Unknown command','t-err'); return;
+  }
+  if(s.mode==='config'){
+    if(p[0]==='end'){ s.mode='enable'; return; }
+    if(p[0]==='exit'){ s.mode='enable'; return; }
+    if(p[0]==='ip'&&p[1]==='routing'){ s.config.ip_routing=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='ospf') { /* noop */ return; }
+    if(p[0]==='router'&&p[1]==='ospf'){ s.config.ospf_enabled=true; s.mode='router'; return; }
+    if(p[0]==='interface'){ s.mode='interface'; s.currentIf=p.slice(1).join(''); if(!s.interfaces[s.currentIf]) s.interfaces[s.currentIf]={}; addTSLine('','t-ok'); return; }
+    if(p[0]==='vlan'&&p[1]){ const vid=parseInt(p[1]); s.config['vlan'+vid]=true; s.mode='vlan'; s.currentVlan=vid; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='dhcp'&&p[2]==='snooping'){ if(p[3]==='vlan') s.config.snooping_vlan=p[4]; else s.config.snooping_global=true; addTSLine('','t-ok'); return; }
+    if(lo.includes('no ip dhcp excluded-address')){ s.config.excluded_all=false; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='dhcp'&&p[2]==='excluded-address'){ s.config.excluded=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='spanning-tree'){
+      if(lo.includes('no spanning-tree portfast')||lo.includes('portfast disable')){ s.config.portfast_removed=true; }
+      else if(lo.includes('bpduguard default')) s.config.bpduguard_global=true;
+      else if(lo.includes('portfast default')) s.config.portfast_global=true;
+      addTSLine('','t-ok'); return;
+    }
+    if(p[0]==='hostname'&&p[1]){ s.hostname=p[1]; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='access-list'){ addTSLine('','t-ok'); return; }
+    if(lo.includes('no ip access-list')||lo.includes('no access-list')){ s.config.acl_removed=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='access-list'||(lo.includes('permit')||lo.includes('deny'))){ s.config.acl_updated=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='nat'&&p[2]==='inside'&&p[3]==='source'){ s.config.nat_rule=true; addTSLine('','t-ok'); return; }
+    if(lo.includes('crypto key generate rsa')){ s.config.rsa_key=true; addTSLine('[OK] Keys generated','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='ospf'){ addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='dhcp'&&p[2]==='pool'){ s.config.dhcp_pool=p[3]; s.mode='dhcp'; addTSLine('','t-ok'); return; }
+    addTSLine('% Unknown command','t-err'); return;
+  }
+  if(s.mode==='router'){
+    if(p[0]==='exit'){ s.mode='config'; return; }
+    if(p[0]==='end'){ s.mode='enable'; return; }
+    if(p[0]==='network'){ s.config.network_area0=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='router-id'){ s.config.router_id=p[1]; addTSLine('','t-ok'); return; }
+    addTSLine('','t-ok'); return;
+  }
+  if(s.mode==='interface'){
+    if(p[0]==='exit'){ s.mode='config'; return; }
+    if(p[0]==='end'){ s.mode='enable'; return; }
+    const iface=s.interfaces[s.currentIf]||{};
+    if(lo==='no shutdown'||lo==='no shut'){ iface.shutdown=false; addTSLine('%LINEPROTO-5-UPDOWN: up','t-sys'); return; }
+    if(p[0]==='ip'&&p[1]==='routing'){ s.config.ip_routing=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='address'){ iface.ip=p[2]; if(p[2]==='192.168.10.1') s.config.svi10=true; if(p[2]==='192.168.20.1') s.config.svi20=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='switchport'&&p[1]==='mode'&&p[2]==='trunk'){ iface.mode='trunk'; s.config.trunk_g024=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='dhcp'&&p[2]==='snooping'&&p[3]==='trust'){ iface.snoopTrust=true; s.config.snooping_trust=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='nat'&&p[2]==='inside'){ iface.natInside=true; s.config.nat_inside=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='ip'&&p[1]==='nat'&&p[2]==='outside'){ iface.natOutside=true; s.config.nat_outside=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='spanning-tree'&&lo.includes('no spanning-tree portfast')){ s.config.portfast_removed=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='no'&&p[1]==='spanning-tree'&&p[2]==='portfast'){ s.config.portfast_removed=true; addTSLine('','t-ok'); return; }
+    if(p[0]==='spanning-tree'&&p[1]==='bpduguard'){ iface.bpduguard=true; addTSLine('','t-ok'); return; }
+    addTSLine('','t-ok'); return;
+  }
+  if(s.mode==='vlan'){
+    if(p[0]==='exit'){ s.mode='config'; return; }
+    if(p[0]==='end'){ s.mode='enable'; return; }
+    if(p[0]==='name'){ addTSLine('','t-ok'); return; }
+    addTSLine('','t-ok'); return;
+  }
+  if(s.mode==='dhcp'){
+    if(p[0]==='exit'){ s.mode='config'; return; }
+    if(p[0]==='end'){ s.mode='enable'; return; }
+    if(p[0]==='lease'){ s.config.lease=p[1]; if(p[1]==='1'||p[1]==='0') s.config.lease_fixed=true; addTSLine('','t-ok'); return; }
+    addTSLine('','t-ok'); return;
+  }
+  if(s.mode==='line'){
+    if(p[0]==='exit'){ s.mode='config'; return; }
+    if(p[0]==='transport'&&p[1]==='input'&&p[2]==='ssh'){ s.config.vty_ssh=true; addTSLine('','t-ok'); return; }
+    addTSLine('','t-ok'); return;
+  }
+  addTSLine('% Unknown command','t-err');
+}
+
+function handleTSShow(p,s){
+  const lo=p.join(' ');
+  // Mark that key show commands were run (for scoring)
+  if(lo.includes('ip route')) s.config.ran_show_route=true;
+  if(lo.includes('access-list')) s.config.ran_show_acl=true;
+  if(lo.includes('ospf neighbor')) s.config.ran_show_ospf=true;
+  if(lo.includes('spanning-tree')) s.config.ran_show_stp=true;
+  if(lo.includes('interfaces trunk')) s.config.ran_show_trunk=true;
+  if(lo.includes('dhcp')) s.config.ran_show_dhcp=true;
+  if(lo.includes('ip nat')) s.config.ran_show_nat=true;
+  if(lo.includes('ip ssh')) s.config.ran_show_ssh=true;
+
+  // Produce output relevant to the scenario
+  const sc=TS_SCENARIOS[tsCurrentScenario];
+  if(!sc) return;
+
+  if(lo.includes('ip route')){
+    addTSLine('Codes: C connected, S static, O OSPF','t-cmt');
+    if(s.config.ip_routing||s.config.ospf_enabled) addTSLine('O    192.168.20.0/24 [110/2] via 10.0.0.1','t-ok');
+    else addTSLine('% No routing protocols running','t-err');
+    if(s.config.ip_routing) { addTSLine('C    192.168.10.0/24 via Vlan10','t-ok'); addTSLine('C    192.168.20.0/24 via Vlan20','t-ok'); }
+    return;
+  }
+  if(lo.includes('ospf neighbor')){
+    if(s.config.ospf_enabled&&!s.config.timer_wrong) addTSLine('2.2.2.2  1  FULL/-  00:00:35  Gi0/0','t-ok');
+    else if(s.config.timer_wrong) addTSLine('% No OSPF neighbours (timer mismatch)','t-err');
+    else addTSLine('% OSPF not configured','t-err');
+    return;
+  }
+  if(lo.includes('spanning-tree')){
+    if(s.config.portfast_on_trunk&&!s.config.portfast_removed)
+      addTSLine('WARNING: Gi0/1 is designated edge port (PortFast) — connected to another switch!','t-err');
+    else
+      addTSLine('VLAN0001 — This bridge is the root, all ports Desg/FWD','t-ok');
+    return;
+  }
+  if(lo.includes('dhcp snooping')){
+    addTSLine('DHCP snooping is '+(s.config.snooping_global?'enabled':'disabled'),'t-out');
+    if(s.config.snooping_global&&!s.config.snooping_trust)
+      addTSLine('WARNING: No trusted ports configured — all ports untrusted','t-warn');
+    return;
+  }
+  if(lo.includes('ip nat translations')){
+    if(s.config.nat_inside&&s.config.nat_outside&&s.config.nat_rule)
+      addTSLine('tcp 203.0.113.1:54321 192.168.1.10:54321 8.8.8.8:80','t-ok');
+    else
+      addTSLine('% No NAT translations (check inside/outside interface markings)','t-err');
+    return;
+  }
+  if(lo.includes('access-list')||lo.includes('access-lists')){
+    if(sc.id==='ts01'){
+      addTSLine('Extended IP access list RESTRICT','t-out');
+      if(!s.config.acl_removed){
+        addTSLine('  10 deny ip 192.168.10.0 0.0.0.255 host 10.0.0.100','t-err');
+        addTSLine('  20 permit ip 192.168.20.0 0.0.0.255 any','t-ok');
+        addTSLine('  30 permit ip any any','t-ok');
+      } else {
+        addTSLine('  No rules — ACL cleared','t-ok');
+      }
+    }
+    return;
+  }
+  if(lo.includes('run')){
+    addTSLine('hostname '+s.hostname,'t-out');
+    if(s.config.ospf_enabled){ addTSLine('router ospf 1','t-out'); if(!s.config.network_area0) addTSLine(' ! no network statements','t-err'); }
+    if(s.config.dhcp_pool&&s.config.long_lease) addTSLine('ip dhcp pool VLAN10  lease 365  ! very long lease','t-err');
+    if(s.config.no_vlans) addTSLine('! VLANs 10,20 not in database','t-err');
+    if(!s.config.ip_routing&&sc.id==='ts02') addTSLine('! ip routing not configured','t-err');
+    return;
+  }
+  if(lo.includes('vlan brief')){
+    addTSLine('VLAN  Name                 Status','t-cmt');
+    addTSLine('1     default              active','t-out');
+    if(s.config.vlan10||!s.config.no_vlans) addTSLine('10    SALES                active','t-ok');
+    if(s.config.vlan20||!s.config.no_vlans) addTSLine('20    HR                   active','t-ok');
+    if(s.config.no_vlans&&!s.config.vlan10) addTSLine('! VLANs 10 and 20 not present','t-err');
+    return;
+  }
+  if(lo.includes('ip ssh')){
+    if(s.config.rsa_key) addTSLine('SSH Enabled - version 2.0','t-ok');
+    else addTSLine('% SSH not enabled — generate RSA key first','t-err');
+    return;
+  }
+  if(lo.includes('ip dhcp binding')){
+    if(s.config.long_lease&&!s.config.dhcp_cleared)
+      addTSLine('47 entries — many from decommissioned devices (lease: 365 days)','t-err');
+    else if(s.config.dhcp_cleared)
+      addTSLine('0 entries — bindings cleared, clients can now request new leases','t-ok');
+    return;
+  }
+  if(lo.includes('interfaces brief')){
+    addTSLine('Interface     IP-Address       Status   Protocol','t-cmt');
+    addTSLine('Vlan10        192.168.10.1     up       '+(s.config.ip_routing?'up':'down(ip routing off)'),'t-out');
+    addTSLine('Vlan20        192.168.20.1     up       '+(s.config.ip_routing?'up':'down(ip routing off)'),'t-out');
+    return;
+  }
+  addTSLine('% Unknown show command','t-warn');
+}
+
+function checkTSScoring(){
+  const sc=TS_SCENARIOS[tsCurrentScenario];
+  if(!sc) return;
+  const mergedConfig={};
+  sc.devices.forEach(dev=>{ if(tsDeviceStates[dev]) Object.assign(mergedConfig,tsDeviceStates[dev].config); });
+
+  // Check each scoring item
+  const checks = [
+    ()=>mergedConfig.ran_show_route||mergedConfig.ran_show_acl||mergedConfig.ran_show_ospf||mergedConfig.ran_show_stp||mergedConfig.ran_show_dhcp||mergedConfig.ran_show_nat||mergedConfig.ran_show_trunk||mergedConfig.ran_show_ssh,
+    ()=>{
+      if(sc.id==='ts01') return mergedConfig.acl_removed||mergedConfig.acl_updated;
+      if(sc.id==='ts02') return mergedConfig.ip_routing;
+      if(sc.id==='ts03') return mergedConfig.snooping_global&&mergedConfig.snooping_trust;
+      if(sc.id==='ts04') return mergedConfig.portfast_removed;
+      if(sc.id==='ts05') return mergedConfig.timers_fixed;
+      if(sc.id==='ts06') return mergedConfig.nat_inside&&mergedConfig.nat_outside;
+      if(sc.id==='ts07') return mergedConfig.rsa_key;
+      if(sc.id==='ts08') return mergedConfig.dhcp_cleared;
+      if(sc.id==='ts09') return mergedConfig.vlan10&&mergedConfig.vlan20;
+      if(sc.id==='ts10') return mergedConfig.network_area0&&mergedConfig.vlan10&&mergedConfig.trunk_g024;
+      return false;
+    },
+    ()=>{
+      if(sc.id==='ts01') return mergedConfig.acl_updated;
+      if(sc.id==='ts02') return mergedConfig.svi10&&mergedConfig.svi20&&mergedConfig.ip_routing;
+      if(sc.id==='ts03') return mergedConfig.snooping_trust&&mergedConfig.snooping_global;
+      if(sc.id==='ts04') return mergedConfig.portfast_removed&&mergedConfig.bpduguard_global;
+      if(sc.id==='ts05') return mergedConfig.timers_fixed&&mergedConfig.ran_show_ospf;
+      if(sc.id==='ts06') return mergedConfig.nat_inside&&mergedConfig.nat_outside&&mergedConfig.nat_rule;
+      if(sc.id==='ts07') return mergedConfig.rsa_key&&mergedConfig.vty_ssh;
+      if(sc.id==='ts08') return mergedConfig.dhcp_cleared&&mergedConfig.lease_fixed;
+      if(sc.id==='ts09') return mergedConfig.vlan10&&mergedConfig.vlan20;
+      if(sc.id==='ts10') return mergedConfig.network_area0&&mergedConfig.vlan10&&mergedConfig.vlan20&&mergedConfig.trunk_g024&&mergedConfig.ospf_enabled;
+      return false;
+    },
+    ()=>mergedConfig.ran_show_route||mergedConfig.ran_show_ospf||mergedConfig.ran_show_nat||mergedConfig.ran_show_stp||mergedConfig.ran_show_dhcp,
+  ];
+
+  let scoreCount=0;
+  checks.forEach((fn,i)=>{
+    const earned=fn();
+    const chk=document.getElementById('ts-check-'+i);
+    if(chk) chk.className='ts-score-check'+(earned?' earned':'');
+    if(earned) scoreCount++;
+  });
+
+  if(scoreCount>=3&&!completedTS.has(tsCurrentScenario)){
+    completedTS.add(tsCurrentScenario);
+    const xpEarned=150+tsCurrentScenario*10;
+    toolXP+=xpEarned; updateXP(); saveData();
+    toast('Scenario solved! +'+xpEarned+' XP');
+    document.querySelectorAll('.ts-scenario-card')[tsCurrentScenario]?.classList.add('completed');
+  }
+}
+
+async function submitTSMethodology(){
+  const text=document.getElementById('ts-methodology-text').value.trim();
+  if(!text||text.length<50){ toast('Write at least 50 words describing your approach'); return; }
+  const sc=TS_SCENARIOS[tsCurrentScenario];
+  const fb=document.getElementById('ts-feedback');
+  fb.innerHTML='<div class="ff-spinner" style="margin:10px auto;width:20px;height:20px;border:2px solid #fff2;border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite"></div>';
+  fb.classList.add('show');
+  try {
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:600,
+        system:'You are a CCNA network engineer grading a troubleshooting methodology. The scenario: "'+sc.symptom+'". The correct root cause: "'+sc.correctRoot+'". Grade the student\'s approach on: 1) Did they identify the fault domain? 2) Did they find the root cause? 3) Was the fix correct? 4) Did they consider prevention? Respond with a score /4 and brief specific feedback. Be direct and technical.',
+        messages:[{role:'user',content:text}]
+      })
+    });
+    const data=await resp.json();
+    const result=(data.content&&data.content[0]&&data.content[0].text)||'Could not evaluate.';
+    fb.innerHTML=`<div class="ts-fb-score" style="color:var(--teal)">Methodology Review</div><div style="line-height:1.7">${result}</div>`;
+  } catch(e) {
+    fb.innerHTML='<div style="color:var(--mid)">Could not reach Claude — review your methodology manually against the scoring criteria.</div>';
+  }
+}
+
+
+// Init
+document.addEventListener('DOMContentLoaded', ()=>{
+  updateXP();
+  renderJournal();
+  // Populate TS scenario cards
+  const grid = document.getElementById('ts-scenario-grid');
+  if(grid) grid.innerHTML = TS_SCENARIOS.map((sc,i)=>`
+    <div class="ts-scenario-card ${completedTS.has(i)?'completed':''}" onclick="loadTSScenario(${i})">
+      <div class="tsc-num">SCENARIO ${String(i+1).padStart(2,'0')}</div>
+      <div class="tsc-title">${sc.title}</div>
+      <div class="tsc-symptom">${sc.symptom.substring(0,100)}...</div>
+      <div class="tsc-meta"><span class="tsc-diff ${sc.diffClass}">${sc.difficulty}</span></div>
+    </div>`).join('');
+  // Init subnet stats from storage
+  document.getElementById('subnet-total').textContent = subnetStats.total;
+  document.getElementById('subnet-correct').textContent = subnetStats.correct;
+  document.getElementById('subnet-accuracy').textContent = subnetStats.total>0 ? Math.round(subnetStats.correct/subnetStats.total*100)+'%' : '—';
+  const avgTime = subnetStats.times.length>0 ? Math.round(subnetStats.times.reduce((a,b)=>a+b,0)/subnetStats.times.length) : 0;
+  document.getElementById('subnet-avgtime').textContent = avgTime>0 ? avgTime+'s' : '—';
+});
+
+function setLevel(level){
+  subnetLevel=level;
+  document.querySelectorAll('.level-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('level-'+level).classList.add('active');
+  toast('Level: '+SUBNET_LEVELS[level].label);
+}
+</script>
+</body>
+</html>
